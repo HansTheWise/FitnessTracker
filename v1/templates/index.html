@@ -1,0 +1,739 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Login/Register View -->
+<div id="auth-view">
+    <!-- bootstrap grid klasse -->
+    <div class="row justify-content-center">
+        <!-- bootstrap grid klasse (used for layoud) -->
+        <div class="col-md-6">
+            <!-- bootstrap card (prestyled container) -->
+            <div class="card bg-dark text-white">
+                <div class="card-body p-5">
+                    <h2 id="auth-title" class="card-title text-center mb-4">Anmelden</h2>
+                    <!-- eingabe formular (id für javascript zum finden) -->
+                    <!-- id ist im ein verweis damit wir in javascript den abteil finden -->
+                    <form id="auth-form">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email-Adresse</label>
+                            <input type="email" class="form-control" id="email" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Passwort</label>
+                            <input type="password" class="form-control" id="password" required />
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" id="auth-submit-btn" class="btn btn-primary">Anmelden</button>
+                        </div>
+                    </form>
+                    <!-- link zum wechseln zwischen login und registrieren -->
+                    <div class="text-center mt-3">
+                        <a href="#" id="toggle-auth-mode">Noch kein Konto? Jetzt registrieren.</a>
+                    </div>
+                    <!-- errorfeld um user sachen zu sagen :O -->
+                    <div id="auth-error" class="text-danger mt-3 text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main App View -->
+<div id="app-view" class="d-none">
+    
+    <ul class="nav nav-tabs" id="main-tabs" role="tablist">
+        <!-- Profil Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-pane" 
+                type="button">Profil</button>
+        </li>
+        <!-- Auswertung Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard-pane"
+                type="button">Auswertung</button>
+        </li>
+        <!-- Nahrungsmittel Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#foods-pane"
+                type="button">Nahrungsmittel</button>
+        </li>
+        <!-- Bewegungsformen Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#exercises-pane"
+                type="button">Bewegungsformen</button>
+        </li>
+        <!-- Konsum Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#consumptions-pane"
+                type="button">Konsum</button>
+        </li>
+        <!-- Aktivitäten Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#activities-pane"
+                type="button">Aktivitäten</button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content pt-3" id="main-tab-content">
+        <!-- Profile Tab Pane -->
+        <div class="tab-pane fade" id="profile-pane" role="tabpanel">
+            <h3>Ihr Profil</h3>
+            <p class="text-muted">Ihre Angaben werden zur Berechnung Ihres täglichen Grundumsatzes (BMR) verwendet.</p>
+            <form id="profile-form">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="profile-gender" class="form-label">Geschlecht</label>
+                        <select id="profile-gender" class="form-select">
+                            <option value="">Bitte wählen...</option>
+                            <option value="male">Männlich</option>
+                            <option value="female">Weiblich</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="profile-age" class="form-label">Alter (Jahre)</label>
+                        <input type="number" id="profile-age" class="form-control" min="1">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="profile-height" class="form-label">Größe (cm)</label>
+                        <input type="number" id="profile-height" class="form-control" min="1">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="profile-weight" class="form-label">Gewicht (kg)</label>
+                        <input type="number" id="profile-weight" class="form-control" step="0.1" min="1">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="profile-start-date" class="form-label">Tracking-Startdatum</label>
+                        <input type="date" id="profile-start-date" class="form-control">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Profil speichern</button>
+            </form>
+        </div>
+        
+        <!-- Auswertungstab -->
+        <div class="tab-pane fade show active" id="dashboard-pane" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Energiebilanz</h3>
+                <div class="btn-group" role="group" id="period-selector">
+                    <button type="button" class="btn btn-outline-primary active" data-period="week">Woche</button>
+                    <button type="button" class="btn btn-outline-primary" data-period="day">Tag</button>
+                    <button type="button" class="btn btn-outline-primary" data-period="month">Monat</button>
+                    <button type="button" class="btn btn-outline-primary" data-period="year">Jahr</button>
+                </div>
+            </div>
+            <!-- aufgenommen bilanz und verbraucht karten -->
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card dashboard-card p-3 text-center">
+                        <h5 class="text-success">Aufgenommen</h5>
+                        <p id="total-in" class="fs-2 mb-0">0 kcal</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card dashboard-card p-3 text-center">
+                        <h5 id="balance-title" class="text-info">Bilanz</h5>
+                        <p id="total-balance" class="fs-2 mb-0">0 kcal</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card dashboard-card p-3 text-center">
+                        <h5 class="text-danger">Verbraucht</h5>
+                        <p id="total-out" class="fs-2 mb-0">0 kcal</p>
+                    </div>
+                </div>
+                <!-- karte für den graphen -->
+                <div class="col-12">
+                    <div class="card dashboard-card p-3">
+                        <canvas id="energy-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nahrungsmittel tab -->
+        <div class="tab-pane fade" id="foods-pane" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <h3>Ihre Nahrungsmittel</h3>
+                <button class="btn btn-success" onclick="app.openModal('foods')">
+                    <i class="bi bi-plus-lg"></i> Hinzufügen
+                </button>
+            </div>
+
+            <!-- Nahrungsmittel Tabelle -->
+            <!-- the data-table is a custom element that is declaired in the javascript part of the html file-->
+            <!-- columns ist ein atribut was eine string (den bauplan) für unsere tabelle enthält, diese wird mit JSON.parse() in ein array von objekten (ein dictionary) -->
+            <data-table entity="foods"
+                columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_100g", "label": "Kalorien / 100g"}]'>
+            </data-table>
+        </div>
+
+        <!-- Bewegungsformen Tab -->
+        <div class="tab-pane fade" id="exercises-pane" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <h3>Ihre Bewegungsformen</h3>
+                <button class="btn btn-success" onclick="app.openModal('exercisetypes')">
+                    <i class="bi bi-plus-lg"></i> Hinzufügen
+                </button>
+            </div>
+            <data-table entity="exercisetypes"
+                columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_hour", "label": "Kalorien / Stunde"}]'></data-table>
+        </div>
+
+        <!-- Konsum Tab -->
+        <div class="tab-pane fade" id="consumptions-pane" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <h3>Ihr Konsum</h3>
+                <button class="btn btn-success" onclick="app.openModal('consumptionlogs')">
+                    <i class="bi bi-plus-lg"></i> Protokollieren
+                </button>
+            </div>
+            <data-table entity="consumptionlogs"
+                columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "food_name", "label": "Nahrungsmittel"}, {"key": "amount_g", "label": "Menge (g)"}]'></data-table>
+        </div>
+
+        <!-- Activities Tab -->
+        <div class="tab-pane fade" id="activities-pane" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <h3>Ihre Aktivitäten</h3>
+                <button class="btn btn-success" onclick="app.openModal('activitylogs')">
+                    <i class="bi bi-plus-lg"></i> Protokollieren
+                </button>
+            </div>
+            <data-table entity="activitylogs"
+                columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "exercise_name", "label": "Bewegung"}, {"key": "duration_min", "label": "Dauer (min)"}]'></data-table>
+        </div>
+    </div>
+</div>
+
+<!-- das template kärtchen -->
+<div class="modal fade" id="item-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">Element</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modal-form"></form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="modal-save-btn">Speichern</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script type="module">
+    // =====================================================================================
+    // Main Application Logic
+    // =====================================================================================
+    class FitnessApp {
+        constructor() {
+            // Stores the URL of the server for api calls
+            this.API_BASE_URL = window.location.origin;
+            // creates a javascript object to controll the bootstrap popup window we use to add or change items
+            this.itemModal = new bootstrap.Modal(document.getElementById("item-modal"));
+            // placeholder to take in the chart.js graph object
+            this.chart = null;
+            // dictionary that holds all of the applications data
+            this.state = {
+                isLoginMode: true,
+                foods: [],
+                exercisetypes: [],
+                consumptionlogs: [],
+                activitylogs: [],
+                profile: {},
+            };
+            // we call the setup funktions to connect the js to our html
+            this.bindDOM();
+            this.addEventListeners();
+            // checks if the user is already logged in (still has a valid token)
+            this.checkInitialAuth();
+        }
+
+        // --- 1. Binding & Event Listeners ---
+        // bindDOM takes all important elements and links/stores them in variables for better efficency
+        // so we can just access the dictionary for each view
+        bindDOM() {
+            this.views = { auth: document.getElementById("auth-view"), app: document.getElementById("app-view") };
+            this.auth = {
+                form: document.getElementById("auth-form"),
+                title: document.getElementById("auth-title"),
+                submitBtn: document.getElementById("auth-submit-btn"),
+                toggleLink: document.getElementById("toggle-auth-mode"),
+                errorDiv: document.getElementById("auth-error"),
+                navSection: document.getElementById("auth-nav-section"),
+            };
+            this.dashboard = {
+                periodSelector: document.getElementById("period-selector"),
+                totalIn: document.getElementById("total-in"),
+                totalOut: document.getElementById("total-out"),
+                totalBalance: document.getElementById("total-balance"),
+                balanceTitle: document.getElementById("balance-title"),
+                chartCanvas: document.getElementById("energy-chart"),
+            };
+            this.profile = {
+                form: document.getElementById("profile-form"),
+                gender: document.getElementById("profile-gender"),
+                age: document.getElementById("profile-age"),
+                height: document.getElementById("profile-height"),
+                weight: document.getElementById("profile-weight"),
+                startDate: document.getElementById("profile-start-date"),
+            };
+        }
+        // eventlistener tells the browers to look for actions on certain objects and how to respond to these actions
+        // ähnlich wie in pyqt mit den signals des UI
+        addEventListeners() {
+            this.auth.toggleLink.addEventListener("click", () => this.toggleAuthMode());
+            this.auth.form.addEventListener("submit", (e) => this.handleAuthSubmit(e));
+            this.dashboard.periodSelector.addEventListener("click", (e) => this.handlePeriodChange(e));
+            this.profile.form.addEventListener("submit", (e) => this.handleProfileSubmit(e));
+
+            document.querySelectorAll("data-table").forEach((table) => {
+                const entity = table.getAttribute("entity");
+                table.addEventListener("edit", (e) => this.openModal(entity, e.detail.id));
+                table.addEventListener("delete", (e) => this.deleteItem(entity, e.detail.id));
+            });
+        }
+
+        // --- 2. Authentication ---
+        // checkt ob wir noch einen aktiven jwt token haben und initializiert dann die app (lässt uns rein)
+        checkInitialAuth() { if (localStorage.getItem("jwt_token")) this.initializeApp(); }
+
+        // wechselt unseren authenification modus zwischen anmelden und registrieren (flip flop :D)
+        toggleAuthMode() {
+            this.state.isLoginMode = !this.state.isLoginMode;
+            this.auth.title.textContent = this.state.isLoginMode ? "Anmelden" : "Registrieren";
+            this.auth.submitBtn.textContent = this.state.isLoginMode ? "Anmelden" : "Registrieren";
+            this.auth.toggleLink.textContent = this.state.isLoginMode ? "Noch kein Konto? Jetzt registrieren." : "Bereits ein Konto? Jetzt anmelden.";
+            this.auth.errorDiv.textContent = "";
+            this.auth.form.reset();
+        }
+
+        // wird getriggert wenn wir auf den submit button clicken und sendet die daten je nach login oder register api
+        // async weil wir await() verwenden
+        async handleAuthSubmit(e) {
+            // e ist das packet über das submit ereignis, wir möchten verhindern das dieses an den server gesendet wird deshalb die funktion darunter um das neuladen der seite zu verhindern
+            e.preventDefault();
+            // wir holen uns die daten aus den elementen
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            // checken in welchem mode wir uns befinden (welcher api endpoint)
+            const endpoint = this.state.isLoginMode ? "/api/login" : "/api/register";
+            try {
+                // packen email passowrd in data und schicken den body mit post an den entsprechenden endpoint und warten auf die antwort welche in data gespeichert wird
+                // je nachdem wir dan auf dem server login oder register mit dem body ausgewertet
+                const data = await this.apiFetch(endpoint, { method: "POST", body: { email, password } });
+                if (this.state.isLoginMode) {
+                    // speichern des access_token in local storage
+                    localStorage.setItem("jwt_token", data.access_token);
+                    this.initializeApp();
+                    // bestätigen das wir registiert sind und zu login wechseln
+                } else {
+                    alert("Registrierung erfolgreich! Bitte melden Sie sich an.");
+                    this.toggleAuthMode();
+                }
+            } catch (error) { this.auth.errorDiv.textContent = error.message; }
+        }
+
+        // wenn auf den logout button geklickt so wird jwt token gelöscht
+        logout() {
+            localStorage.removeItem("jwt_token");
+            // entfernt das display none tag von der auth view
+            this.views.auth.classList.remove("d-none");
+            // addet das display none tag so das wieder die "startseite" angezeigt wird
+            this.views.app.classList.add("d-none");
+            // entfernt den logout button
+            this.auth.navSection.innerHTML = "";
+        }
+
+        // --- 3. Main App Initialization ---
+        async initializeApp() {
+            // wir swichen wieder die display none tags so das wir die anwendung sehen und auth unsichtbar wird
+            this.views.auth.classList.add("d-none");
+            this.views.app.classList.remove("d-none");
+            // wir fügen den abmelde button hinzu
+            this.auth.navSection.innerHTML = `<button class="btn btn-outline-danger" id="logout-btn">Abmelden</button>`;
+            // erstellen einen listener welcher die logout beim drücken des logout buttons ausführt
+            document.getElementById("logout-btn").addEventListener("click", () => this.logout());
+            // wir führen die loadAllData funktion aus und warten das der server antwortet
+            await this.loadAllData();
+            // danach updaten wir das dashboard in der default ansicht
+            this.updateDashboard("week");
+        }
+        // wir holen uns den inhalt aller entitäten indem wir für jede tabelle nacheinander die loadEntityData funktion aufrufen
+        async loadAllData() {
+            const entities = ["foods", "exercisetypes", "consumptionlogs", "activitylogs"];
+            for (const entity of entities) {
+                await this.loadEntityData(entity);
+            }
+            await this.loadProfileData();
+        }
+
+        // diese funktion wird in loadAllData immer wieder aufgerufen und lädt für jede Entity die datensätze
+        async loadEntityData(entity) {
+            try {
+                // wir senden eine fetch anfrage an den server mit dem endpoint des entity
+                const data = await this.apiFetch(`/api/${entity}`);
+                // speichern der daten in unserem state dictonary wo wir effektiv alle daten des nutzers speichern
+                this.state[entity] = data;
+                // sucht nach passendem data-table element um die entity daten dort anzuzeigen (wir lassen die table variable auf das tabellen element zeigen)
+                const table = document.querySelector(`data-table[entity="${entity}"]`);
+                // wir testen ob gefunden, wenn ja übergeben wir die daten an die tabelle wodurch die reder() methode in der DataTable klasse ausgefürt wird
+                // in der table variable ist die referenz auf unser data-talbe javascript object, für dieses rufen wir den festgelegeten setter auf und übergeben die daten
+                if (table) table.data = data;
+            } catch (error) { console.error(`Fehler beim Laden von ${entity}:`, error); }
+        }
+
+        // sendet eine apiFetch anfrage um die profildaten des users abzufragen
+        async loadProfileData() {
+            try {
+                const data = await this.apiFetch('/api/profile');
+                // wir speichern das gesamte datenobjekt in unserem state dictionary
+                this.state.profile = data;
+                // dann setzen wir für alle element in unserer profile form ansicht die werte ein oder lassen sie leer wenn wir keine haben
+                this.profile.gender.value = data.gender || '';
+                this.profile.age.value = data.age || '';
+                this.profile.height.value = data.height_cm || '';
+                this.profile.weight.value = data.weight_kg || '';
+                this.profile.startDate.value = data.tracking_start_date || '';
+            } catch (error) {
+                console.error("Fehler beim Laden des Profils:", error);
+            }
+        }
+
+        // diese funktion nimmt ein
+        async handleProfileSubmit(e) {
+            // wir verhindern das die seite neu geladen wird
+            e.preventDefault();
+            // wir speichern alle werte in einem payload object und casten die werte in das passende format
+            const payload = {
+                gender: this.profile.gender.value,
+                age: this.profile.age.value ? parseInt(this.profile.age.value, 10) : null,
+                height_cm: this.profile.height.value ? parseInt(this.profile.height.value, 10) : null,
+                weight_kg: this.profile.weight.value ? parseFloat(this.profile.weight.value) : null,
+                tracking_start_date: this.profile.startDate.value ? new Date(this.profile.startDate.value).toISOString() : null
+            };
+            try {
+                // dann schicken wir mit apiFetch eine PUT anfrage für die profil api schnittstelle und geben als body den payload mit
+                await this.apiFetch('/api/profile', { method: 'PUT', body: payload });
+                // feedback für user
+                alert('Profil erfolgreich gespeichert!');
+                // dann landen wir die profildaten neu um intern alle änderungen zu speichern
+                await this.loadProfileData();
+                // updaten dann mit den neuen daten das dashboard und übergeben als period attribut das data-period attribut des aktiven buttons
+                this.updateDashboard(this.dashboard.periodSelector.querySelector(".active").dataset.period);
+            } catch (error) {
+                alert(`Fehler beim Speichern des Profils: ${error.message}`);
+            }
+        }
+
+        // --- 4. Dashboard Logic ---
+        // wir bekommen ein event e übergeben wenn ein button im dashboard fester gedrückt wird
+        handlePeriodChange(e) {
+            // wenn das event ein button event ist so machen wir folgendes
+            if (e.target.tagName === "BUTTON") {
+                // dashboard ist ein dictionary welches die periodSelector variable besitze welche eine referenz auf die dashboard period buttons ist
+                // dort suchen wir nach dem gegenwärtigen button mit der active class und entfernen diese class
+                this.dashboard.periodSelector.querySelector(".active").classList.remove("active");
+                // dann fügen wird den active tag bei dem button ein welcher gedrückt wurde
+                e.target.classList.add("active");
+                // anschließend updatenten wir das dashboard wobei nun die period des aktiven buttons genommen wird um die daten anzuzeigen
+                this.updateDashboard(e.target.dataset.period);
+            }
+        }
+
+        async updateDashboard(period) {
+            try {
+                const data = await this.apiFetch(`/api/dashboard?period=${period}`);
+                this.dashboard.totalIn.textContent = `${data.total_in} kcal`;
+                this.dashboard.totalOut.textContent = `${data.total_out} kcal`;
+
+                const balance = data.balance;
+                this.dashboard.totalBalance.textContent = `${balance >= 0 ? '+' : ''}${balance} kcal`;
+                this.dashboard.balanceTitle.className = balance >= 0 ? 'text-success' : 'text-danger';
+                this.dashboard.totalBalance.className = `fs-2 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'}`;
+
+                this.renderChart(data);
+            } catch (error) { console.error("Fehler beim Aktualisieren des Dashboards:", error); }
+        }
+
+        renderChart(data) {
+            const ctx = this.dashboard.chartCanvas.getContext("2d");
+            if (this.chart) this.chart.destroy();
+            this.chart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: "Aufgenommen (kcal)",
+                        data: data.calories_in,
+                        backgroundColor: "rgba(40, 167, 69, 0.6)",
+                        borderColor: "#28a745",
+                        borderWidth: 1,
+                        details: data.details_in,
+                    }, {
+                        label: "Verbraucht (kcal)",
+                        data: data.calories_out,
+                        backgroundColor: "rgba(220, 53, 69, 0.6)",
+                        borderColor: "#dc3545",
+                        borderWidth: 1,
+                        details: data.details_out,
+                    }],
+                },
+                options: {
+                    scales: { y: { beginAtZero: true, grid: { color: "rgba(255, 255, 255, 0.1)" } }, x: { grid: { color: "rgba(255, 255, 255, 0.1)" } } },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                footer: (tooltipItems) => {
+                                    let footerText = [];
+                                    tooltipItems.forEach(item => {
+                                        const details = item.dataset.details[item.dataIndex];
+                                        if (details && details.length > 0) {
+                                            footerText.push(...details);
+                                        }
+                                    });
+                                    return footerText;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 5. Modal & CRUD Logic ---
+        async openModal(entity, id = null) {
+            // wir holen uns den verweis für den form abteil des popup window html moduls
+            const form = document.getElementById("modal-form");
+            // wir holen uns den titel des popup windows
+            const title = document.getElementById("modal-title");
+            // wir ersetzen den html code des forms mit dem formular des bestimten entity
+            form.innerHTML = this.getFormFields(entity); //getFromFields sucht für das entity alle attribute und gibt uns eine blaupause für die eingabefelder indem wir den html code dafür einsetzen
+            title.textContent = `${this.getEntityLabel(entity)} ${id ? "bearbeiten" : "hinzufügen"}`; // sucht für das entity den titel und gibt den namen zurück wenn wir id haben so bearbeiten wir sonst hinzufügen
+            // wenn eine id für einen datensatz mit übergeben wurde wir also ein item bearbeiten möchten so füllen wir das popup mit dem inhalt dieses datensatzes
+            if (id) {
+                // wir testen ob wir einen datensatz mit dieser id für die entity haben
+                // und speichern den inhalt des datensatzes in der item const
+                const item = this.state[entity].find((i) => i.id == id);
+                // die item const wird genutzt um unser popup mit dem datensatz zu füllen so das der nutzer änderungen an diesem vornhemen und speichern kann
+                this.populateForm(item);
+            }
+            // Wir weisen dem "Speichern" - Button seine Funktion zu.
+            // legt fest, dass beim Klick auf "Speichern" die saveItem-Funktion ausgeführt wird.
+            document.getElementById("modal-save-btn").onclick = () => this.saveItem(entity, id);
+            // Zeigt das vorbereitete Modal-Fenster an.
+            this.itemModal.show();
+        }
+        
+        async saveItem(entity, id) {
+            // wir holen uns die daten für den datensatz mit der funktion welche die daten aus unserem form fields ausliest und verarbeitet
+            const payload = this.getPayloadFromForm(entity);
+            // test ob wir für dieses entity das payload erhalten haben
+            if (!payload) return;
+            // wir erstellen dynamisch den endpoint für die apiFetch request wenn id vorhanden so ist es eine änderung als bearbeiten eines vorhandenen datensatzes
+            const endpoint = id ? `/api/${entity}/${id}` : `/api/${entity}`;
+            // methode auch je nach vorhandensein der id auswählen
+            const method = id ? "PUT" : "POST";
+            
+            try {
+                // wir schicken je id ? eine put oder post anfrage an den endpoint unseres entity / datensatzes und warten eine antwort ab
+                await this.apiFetch(endpoint, { method, body: payload });
+                // wir machen das popup fenster unsichtbar
+                this.itemModal.hide();
+                // wir updaten die datensätze für das entity in unserem state dictionary
+                await this.loadEntityData(entity);
+                // dann updateten wir das dashboard um die änderung auch dort anzuzeigen
+                await this.updateDashboard(this.dashboard.periodSelector.querySelector(".active").dataset.period);
+            } catch (error) { alert(`Fehler: ${error.message}`); }
+        }
+
+        async deleteItem(entity, id) {
+            if (confirm(`Sind Sie sicher, dass Sie dieses Element löschen möchten?`)) {
+                try {
+                    await this.apiFetch(`/api/${entity}/${id}`, { method: "DELETE" });
+                    await this.loadEntityData(entity);
+                    await this.updateDashboard(this.dashboard.periodSelector.querySelector(".active").dataset.period);
+                } catch (error) { alert(`Fehler: ${error.message}`); }
+            }
+        }
+
+        // --- 6. Form & Helper Logic ---
+        // diese funktion gibt uns den correkten HTML code für einen entity type wie foods etc um den body / inhalt des popup windows zu erstellen
+        // dieser wird benötigt wenn wir das popup window erstellen in openModal()
+        getFormFields(entity) {
+            switch (entity) {
+                case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_per_100g" class="form-control" required></div>`;
+                case "exercisetypes": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / Stunde</label><input type="number" id="form-calories_per_hour" class="form-control" required></div>`;
+                case "consumptionlogs": return `<div class="mb-3"><label class="form-label">Datum</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${this.getSelectOptions("foods")}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
+                case "activitylogs": return `<div class="mb-3"><label class="form-label">Datum</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${this.getSelectOptions("exercisetypes")}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
+                default: return "";
+            }
+        }
+
+        // füllt das popup window mit informationen wenn ein item bearbeitet wird
+        populateForm(item) { 
+            // mit object.keys(item) erstellen wir schlüssel für diesen datensatz, und für jeden schlüssel
+            Object.keys(item).forEach((key) => {
+                // holen wir uns das form feld für diesen key, und speichern diese referenz in der input const
+                const input = document.getElementById(`form-${key}`);
+                // wir testen ob wir ein form field gefunden haben
+                if (input) {
+                    // wemm es sich beim key um "log_data" handelt und dieser key auch im datensatz ist so ändern wir den inhalt des input fields zum datum wobei wir dieses vorher noch spliten nach 'T'
+                    if (key === "log_date" && item[key]) {
+                        input.value = item[key].split('T')[0];
+                        // sonst setzen wir den wert des input fields einfach zum wert des items für diesen key
+                    } else {
+                        input.value = item[key];
+                    }
+                }
+            });
+        }
+
+        // die getpayloadfromform bekommt ein entity übergeben für welches wir dessen formular erhalten möchten 
+        // um eine funktion dafür anzupassen, wie die save funktion, anhand dieser vorlage/bauplan kann die funktion dann dynamisch speichern
+        getPayloadFromForm(entity) {
+            const payload = {};
+            const formFields = {
+                foods: ["name", "calories_per_100g"],
+                exercisetypes: ["name", "calories_per_hour"],
+                consumptionlogs: ["log_date", "food_id", "amount_g"],
+                activitylogs: ["log_date", "exercise_type_id", "duration_min"],
+            };
+            // für jedes attribut unserer entität (bei foods entity = name und calories_per_100g) 
+            for (const field of formFields[entity]) {
+                // wir suchen nach dem imput form field für diese attribut des popup windows und speichern den verweis in der input const
+                const input = document.getElementById(`form-${field}`);
+                // wenn im form field des attributs kein wert steht so geben wir einen "fehler zurück" und beenden die funktion mit return null
+                if (!input.value) { alert("Bitte füllen Sie alle Felder aus."); return null; }
+                // wenn das atribut ein log date ist so erstellen wir ein datumsobjekt und speichern dieses im payload unter log_date
+                if (field === 'log_date') {
+                    payload[field] = new Date(input.value).toISOString();
+                // ansonsten schauen wir ob das form field vom typ number ist, wenn ja so casten wir die string in ein int als base 10 decimal number, sonst speicher wir einfach das value
+                } else {
+                    payload[field] = input.type === "number" ? parseInt(input.value, 10) : input.value;
+                }
+            }
+            return payload;
+        }
+        // gibt dynamisch dem popup window seinen namen
+        getEntityLabel(entity) {
+            const labels = { foods: "Nahrungsmittel", exercisetypes: "Bewegungsform", consumptionlogs: "Konsum", activitylogs: "Aktivität" };
+            return labels[entity] || "Element";
+        }
+
+        getSelectOptions(entity) { 
+            return this.state[entity].map((item) => `<option value="${item.id}">${item.name}</option>`).join(""); 
+        }
+
+        // --- 7. API Fetch Wrapper ---
+        // wir nutzen den api fetch wrapper um dynamisch anfragen an den server zu senden
+        // hierfür übergeben wir das ziel (den endpoint im server)
+        // und die metadaten für die anfrage also header, method, body je nachdem welche funktion apiFetch aufruft ist der inhalt unterschiedlich
+        async apiFetch(endpoint, options = {}) {
+            // wir speichern den jwt token in variable
+            const token = localStorage.getItem("jwt_token");
+            // im header geben wir dem server die infomation was der inhalt im body als json gesendet wird und geben vielleicht noch extra infos (options) im header an wie POST
+            const headers = { "Content-Type": "application/json", ...options.headers };
+            // test ob token not null wenn ja so erstellen wir ein neues key value paar für den header um unsere identität beim server zu bestätigen
+            if (token) headers["Authorization"] = `Bearer ${token}`;
+            // wir testen ob wir daten für den body haben wenn ja wandeln wir das wandeln wir das json objekt in eine string um
+            if (options.body) options.body = JSON.stringify(options.body);
+
+            // wir schicken die anfrage an den server welcher sich an der API_BASE_URL adresse befindet, mit dem angehängten ziel punkt unserer anfrage mit dem body als options und heardes als head der anfrage und warten auf eine antwort 
+            const response = await fetch(`${this.API_BASE_URL}${endpoint}`, { ...options, headers });
+            if (response.status === 401) this.logout();
+            if (!response.ok) throw new Error((await response.json()).msg || "API-Fehler");
+            return response.status === 204 ? null : response.json();
+        }
+    }
+
+    // --- Custom Element für die Datentabelle ---
+    // hier erstellen wir ein custom element die <data-table>
+    //wir erben von HTML wodurch wir das element normal benutzen können
+    class DataTable extends HTMLElement {
+
+        
+        constructor() { 
+            // super for HTMLElement setup
+            super(); 
+            //creates seperate bubble for the element, so the html and css is isolated from the rest of the page (thats why we need to import bootstrap style inside this class)
+            //its like a closed district in the city, its part of the city but you cant get in and nobody can get out (gemini sagt ja zu dieser analogie)
+            this.attachShadow({ mode: "open" }); 
+        }
+
+        // its like a watchlist, tells the browser what HTML attributes the component should observer for changes
+        static get observedAttributes() { 
+            // By putting "columns" in this list, we are activating the function attributeChangedCallback()
+            return ["columns"]; 
+        }
+
+        // connectedCallback ist auch eine eingebaute funktion welche wir standartmäßig bei custom elementen existiert
+        // diese wird automatisch vom browser aufgerufen wenn das element das erste mal im DOM (Document Object Model) des browsers auftaucht
+        // baumstrucktur wenn das element in den baum hinzugefügt wird callen wir die funktion hierfür
+        // mit javascript kann man dann durch den DOM tree gehen und diese manipulieren (das eigwntlich statische HTML dynamisch machen)
+        connectedCallback() {
+            this.render(); 
+        }
+
+        // wir überschreiben die attributeChangedCallback funktion welche standartmäßig existiert
+        // attributeChangedCallback(): wird Called wenn ein attribute listed in observedAttributes is added, removed, or changed
+        // wir lesen dan denn wert aus und wandeln die string in ein json um
+        // wir speichern den geänderten wert in this._clumns variable welche von der render() funktion genutzt wird
+        attributeChangedCallback(name, oldValue, newValue) { 
+            if (name === "columns") this._columns = JSON.parse(newValue); 
+        }
+        // das ist ein Setter, er wird aufgerufen wenn wir daten übergeben mit table.data = data
+        // diese speichert zuerst die daten in _data und startet dann die render() funktion
+        set data(data) { 
+            this._data = data;
+            this.render(); 
+        }
+
+        // funktion that applies the style and controlls how content is displayed inside the data-table element
+        render() {
+            // jedes table element hat sein eigenes columns atribut welches ein dicotnary ist columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_100g", "label": "Kalorien / 100g"}]'>
+            // colums ist die blueprint welche infos wo hingehören für das element
+            const columns = this._columns || []; // || [] sorgt dafür das wenn wir noch nichts haben ein leeres arry erstellt wird
+            // data sind die daten für das element welche mithilfe der columns blueprint eingefügt werden
+            const data = this._data || [];
+            // hier haben wir HTML code für das element, dieses wird in das shadow dom des elemnts geben und ersetzt dessen html code (shadow dom ist dann i guess ein bereich in unserem dom tree welcher isoliert vom rest ist aber immernoch teil des "hauses" ist)
+            
+            // <thead>...${columns.map(...)}...</thead>: Es durchläuft das columns-Array, um die Tabellenköpfe (<th>) zu erstellen
+            // <tbody>...${data.map(...)}...</tbody>: Es durchläuft das data-Array, um jede Tabellenzeile (<tr>) und deren Zellen (<td>) zu erstellen
+            this.shadowRoot.innerHTML = `
+                <style>
+                    @import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
+                    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
+                    .table { --bs-table-bg: #343a40; --bs-table-striped-bg: #454d55; --bs-table-hover-bg: #4f5861; --bs-table-color: #dee2e6; --bs-table-border-color: #495057; }
+                    .btn-action { width: 40px; }
+                </style>
+                <div class="table-responsive"><table class="table table-striped table-hover">
+                    <thead><tr>${columns.map((c) => `<th>${c.label}</th>`).join("")}<th class="text-end">Aktionen</th></tr></thead>
+                    <tbody>${data.map((row) => `<tr data-id="${row.id}">${columns.map((c) => `<td>${this.formatCell(c, row[c.key])}</td>`).join("")}<td class="text-end"><button class="btn btn-sm btn-outline-primary btn-action edit-btn" title="Bearbeiten"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger btn-action delete-btn" title="Löschen"><i class="bi bi-trash"></i></button></td></tr>`).join("")}</tbody>
+                </table></div>`;
+            // sucht nach allen edit und delete buttons und gibt ihnen einen event listener welcher bei click das modal öffnet
+            this.shadowRoot.querySelectorAll(".edit-btn").forEach((btn) => btn.addEventListener("click", (e) => this.dispatchEvent(new CustomEvent("edit", { bubbles: true, composed: true, detail: { id: e.currentTarget.closest("tr").dataset.id } }))));
+            this.shadowRoot.querySelectorAll(".delete-btn").forEach((btn) => btn.addEventListener("click", (e) => this.dispatchEvent(new CustomEvent("delete", { bubbles: true, composed: true, detail: { id: e.currentTarget.closest("tr").dataset.id } }))));
+        }
+        
+        formatCell(column, value) {
+            if (column.format === "datetime") return new Date(value).toLocaleString("de-DE", { dateStyle: 'short' });
+            return value || "";
+        }
+    }
+
+    customElements.define("data-table", DataTable);
+
+    // App-Instanz erstellen
+    window.app = new FitnessApp();
+</script>
+{% endblock %}

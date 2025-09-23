@@ -1,0 +1,9 @@
+# requirements.txt
+Flask
+Flask-SQLAlchemy
+Flask-JWT-Extended
+psycopg2-binary
+werkzeug
+python-dateutil
+Flask-Marshmallow
+marshmallow-sqlalchemy
