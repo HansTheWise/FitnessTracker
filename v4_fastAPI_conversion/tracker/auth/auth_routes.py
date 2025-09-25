@@ -32,6 +32,7 @@ def login(user_data: tracking_schemas.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     access_token = security.create_access_token(
         data={"sub": str(user.user_id)}
     )

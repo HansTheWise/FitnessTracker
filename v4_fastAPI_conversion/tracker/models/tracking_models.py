@@ -7,7 +7,8 @@ from ..database import Base
 
 class Food(Base):
     __tablename__ = 'foods'
-    food_id: Mapped[int] = mapped_column(primary_key=True)
+    # MAP: Map the 'food_id' database column to the 'id' attribute in the model.
+    id: Mapped[int] = mapped_column('food_id', primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     name: Mapped[str] = mapped_column()
     calories_per_100g: Mapped[int] = mapped_column()
@@ -16,7 +17,8 @@ class Food(Base):
 
 class ExerciseType(Base):
     __tablename__ = 'exercisetypes'
-    exercise_type_id: Mapped[int] = mapped_column(primary_key=True)
+    # MAP: Map the 'exercise_type_id' database column to the 'id' attribute.
+    id: Mapped[int] = mapped_column('exercise_type_id', primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     name: Mapped[str] = mapped_column()
     calories_per_hour: Mapped[int] = mapped_column()
@@ -25,7 +27,7 @@ class ExerciseType(Base):
 
 class ConsumptionLog(Base):
     __tablename__ = 'consumptionlogs'
-    consumption_log_id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column('consumption_log_id', primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     food_id: Mapped[int] = mapped_column(ForeignKey('foods.food_id'))
     amount_g: Mapped[int] = mapped_column()
@@ -34,14 +36,19 @@ class ConsumptionLog(Base):
     food: Mapped["Food"] = relationship(back_populates='consumptions')
 
     @property
-    def calories(self) -> float: # Added return type hint
+    def calories(self) -> float:
         if self.food and self.amount_g:
             return round((self.amount_g / 100) * self.food.calories_per_100g)
         return 0.0
+    
+    # FIX: Add a property to expose the related food's name.
+    @property
+    def food_name(self) -> str:
+        return self.food.name if self.food else ""
 
 class ActivityLog(Base):
     __tablename__ = 'activitylogs'
-    activity_log_id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column('activity_log_id', primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     exercise_type_id: Mapped[int] = mapped_column(ForeignKey('exercisetypes.exercise_type_id'))
     duration_min: Mapped[int] = mapped_column()
@@ -50,8 +57,13 @@ class ActivityLog(Base):
     exercise_type: Mapped["ExerciseType"] = relationship(back_populates='activities')
 
     @property
-    def calories(self) -> float: # Added return type hint
+    def calories(self) -> float:
         if self.exercise_type and self.duration_min:
             return round((self.duration_min / 60) * self.exercise_type.calories_per_hour)
         return 0.0
+
+    # FIX: Add a property to expose the related exercise type's name.
+    @property
+    def exercise_name(self) -> str:
+        return self.exercise_type.name if self.exercise_type else ""
 

@@ -1,11 +1,12 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from werkzeug.security import check_password_hash
+
 
 from .config import settings
 from .database import get_db
@@ -13,7 +14,7 @@ from .models import user_models
 
 # --- Configuration ---
 # Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt", "pbkdf2_sha256"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # OAuth2 scheme for token handling in Swagger UI

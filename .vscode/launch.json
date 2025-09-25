@@ -1,0 +1,17 @@
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "tracker.main:app",
+                "--reload"
+            ],
+            "cwd": "${workspaceFolder}/v4_fastAPI_conversion" // <-- Diese Zeile hinzufügen
+        }
+    ]
+}

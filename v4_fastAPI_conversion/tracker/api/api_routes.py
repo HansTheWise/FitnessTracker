@@ -40,31 +40,32 @@ def get_dashboard(
 
 # This map is the equivalent of your Flask ENTITY_MAP.
 # It connects URL paths to models and schemas.
+# FIX: Updated 'pk' values to 'id' to match the updated SQLAlchemy models.
 ENTITY_MAP = {
     'foods': {
         'model': tracking_models.Food,
-        'pk': 'food_id',
+        'pk': 'id', # Formerly 'food_id'
         'schema': tracking_schemas.Food,
         'create_schema': tracking_schemas.FoodCreate,
         'update_schema': tracking_schemas.FoodUpdate,
     },
     'exercisetypes': {
         'model': tracking_models.ExerciseType,
-        'pk': 'exercise_type_id',
+        'pk': 'id', # Formerly 'exercise_type_id'
         'schema': tracking_schemas.ExerciseType,
         'create_schema': tracking_schemas.ExerciseTypeCreate,
         'update_schema': tracking_schemas.ExerciseTypeUpdate,
     },
     'consumptionlogs': {
         'model': tracking_models.ConsumptionLog,
-        'pk': 'consumption_log_id',
+        'pk': 'id', # Formerly 'consumption_log_id'
         'schema': tracking_schemas.ConsumptionLog,
         'create_schema': tracking_schemas.ConsumptionLogCreate,
         'update_schema': tracking_schemas.ConsumptionLogUpdate,
     },
     'activitylogs': {
         'model': tracking_models.ActivityLog,
-        'pk': 'activity_log_id',
+        'pk': 'id', # Formerly 'activity_log_id'
         'schema': tracking_schemas.ActivityLog,
         'create_schema': tracking_schemas.ActivityLogCreate,
         'update_schema': tracking_schemas.ActivityLogUpdate,
@@ -158,7 +159,7 @@ def delete_entity(
     try:
         crud.delete_item(db, db_item=db_item)
     except IntegrityError:
-        raise HTTPException(status_code=409, detail="Cannot delete this item as other entries depend on it.")
+        raise HTTPException(status_code=409, detail="Cannot delete this as other entries depend on it.")
     
     return None
 
