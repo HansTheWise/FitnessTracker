@@ -104,7 +104,8 @@ class DataTable extends HTMLElement {
 
     formatCell(column, value) {
         if (column.format === "datetime" && value) {
-            return new Date(value).toLocaleString("de-DE", { dateStyle: 'short', timeStyle: 'short' });
+            // Zeigt nur noch das Datum an, z.B. "26.9.2025"
+            return new Date(value).toLocaleDateString("de-DE");
         }
         return value || "";
     }

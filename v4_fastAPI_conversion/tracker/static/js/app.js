@@ -15,6 +15,7 @@ const getInitialState = () => ({
     uiCache: { foodOptions: '', exerciseOptions: '' },
 });
 
+let choicesInstance = null;
 let state = getInitialState();
 
 // --- DOM Element References ---
@@ -70,8 +71,8 @@ function getFormFields(entity) {
     switch (entity) {
         case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_per_100g" class="form-control" required></div>`;
         case "exercisetypes": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / Stunde</label><input type="number" id="form-calories_per_hour" class="form-control" required></div>`;
-        case "consumptionlogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${state.uiCache.foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
-        case "activitylogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${state.uiCache.exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
+        case "consumptionlogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${state.uiCache.foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
+        case "activitylogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${state.uiCache.exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
         default: return "";
     }
 }
@@ -231,7 +232,7 @@ async function handleProfileSubmit(e) {
  * @param {string} entity - The entity type to determine required fields.
  * @returns {object|null} The payload object or null if validation fails.
  */
-function getPayloadData(entity) {
+function get_entitypayload_data_from_modal(entity) {
     const formFields = { foods: ["name", "calories_per_100g"], exercisetypes: ["name", "calories_per_hour"], consumptionlogs: ["log_date", "food_id", "amount_g"], activitylogs: ["log_date", "exercise_type_id", "duration_min"] };
     const payload = {};
     for (const field of formFields[entity]) {
@@ -242,7 +243,7 @@ function getPayloadData(entity) {
         }
         if (field.includes('_id')) { payload[field] = parseInt(input.value, 10); }
         else if (input.type === "number") { payload[field] = parseFloat(input.value); }
-        else if (input.type === 'datetime-local') { payload[field] = new Date(input.value).toISOString(); }
+        else if (input.type === 'date') { payload[field] = input.value; }
         else { payload[field] = input.value; }
     }
     return payload;
@@ -253,22 +254,61 @@ function getPayloadData(entity) {
  * @param {string} entity - The entity type.
  * @param {string|null} id - The ID of the item to edit, or null for creation.
  */
+/**
+ * Opens and configures the modal for creating or editing an item.
+ * @param {string} entity - The entity type.
+ * @param {string|null} id - The ID of the item to edit, or null for creation.
+ */
 function openModal(entity, id = null) {
+
+    if (choicesInstance) {
+        choicesInstance.destroy();
+        choicesInstance = null;
+    }
+
     clearModalError(dom.modal.element);
     dom.modal.form.innerHTML = getFormFields(entity) + `<div class="modal-error-display alert alert-danger" style="display: none;"></div>`;
     dom.modal.title.textContent = `${getEntityLabel(entity)} ${id ? "bearbeiten" : "hinzufügen"}`;
 
+    // Standardwerte für das "Hinzufügen"-Formular setzen
+    if (!id) {
+        const dateInput = document.getElementById('form-log_date');
+        if (dateInput) {
+            const today = new Date();
+            today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+            dateInput.value = today.toISOString().slice(0, 10);
+        }
+    }
+
+    // Choices.js initialisieren, falls ein Select-Element vorhanden ist
+    const selectElement = dom.modal.form.querySelector('select');
+    if (selectElement) {
+        choicesInstance = new Choices(selectElement, {
+            searchPlaceholderValue: 'Hier suchen...',
+            itemSelectText: 'Auswählen',
+            shouldSort: false,
+        });
+    }
+    
+    // Werte für das "Bearbeiten"-Formular setzen, NACHDEM Choices.js initialisiert wurde
     if (id) {
         const item = state[entity].find((i) => i.id == id);
         Object.keys(item).forEach((key) => {
             const input = document.getElementById(`form-${key}`);
             if (input) {
-                if (input.type === "datetime-local" && item[key]) {
-                    const date = new Date(item[key]);
-                    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                    input.value = date.toISOString().slice(0, 16);
-                } else {
-                    input.value = item[key];
+                // NEUE LOGIK:
+                // Wenn es das Select-Feld ist, setzen wir den Wert über die Choices-API
+                if (input.tagName === 'SELECT' && choicesInstance) {
+                    // Wichtig: Der Wert muss als String übergeben werden
+                    choicesInstance.setChoiceByValue(String(item[key])); 
+                } 
+                // Für alle anderen Felder (Datum, Text, Zahl) bleibt die Logik gleich
+                else {
+                    if (input.type === "date" && item[key]) {
+                        input.value = new Date(item[key]).toISOString().slice(0, 10);
+                    } else {
+                        input.value = item[key];
+                    }
                 }
             }
         });
@@ -284,7 +324,7 @@ function openModal(entity, id = null) {
  * @param {string|null} id - The ID of the item to update, or null for creation.
  */
 async function saveItem(entity, id) {
-    const payload = getPayloadData(entity);
+    const payload = get_entitypayload_data_from_modal(entity);
     if (!payload) return;
 
     const endpoint = id ? `/api/${entity}/${id}` : `/api/${entity}`;

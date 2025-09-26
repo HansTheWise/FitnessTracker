@@ -123,13 +123,13 @@ class User(BaseModel):
 class DashboardData(BaseModel):
     labels: List[str]
     calories_in: List[float]
-    calories_out: List[float]
+    calories_out_active: List[float]  
+    calories_out_bmr: List[float]     
     details_in: List[List[str]]
     details_out: List[List[str]]
     total_in: float
     total_out: float
     balance: float
-
 # ==============================================================================
 # Authentication Schemas
 # ==============================================================================

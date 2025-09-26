@@ -86,26 +86,124 @@ export function clearModalError(modalElement) {
 }
 
 /**
- * Rendert das Energiebilanz-Diagramm.
+ * Rendert das Energiebilanz-Diagramm mit detaillierten, prozentualen Tooltips.
  * @param {HTMLCanvasElement} chartCanvas Das Canvas-Element für das Diagramm.
- * @param {object} data Die Daten für das Diagramm.
+ * @param {object} data Die Daten für das Diagramm, inklusive 'details_in' und 'details_out'.
  */
 export function renderChart(chartCanvas, data) {
+    const sanitizeArray = (arr) => {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(value => (typeof value === 'number' && isFinite(value) ? value : 0));
+    };
+
+    const caloriesInClean = sanitizeArray(data.calories_in);
+    const caloriesOutBmrClean = sanitizeArray(data.calories_out_bmr);
+    const caloriesOutActiveClean = sanitizeArray(data.calories_out_active);
+
     const ctx = chartCanvas.getContext("2d");
     if (chartInstance) chartInstance.destroy();
+
     chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
             labels: data.labels,
             datasets: [
-                { label: "Aufgenommen (kcal)", data: data.calories_in, backgroundColor: "rgba(40, 167, 69, 0.6)", borderColor: "#28a745", borderWidth: 1, details: data.details_in, },
-                { label: "Verbraucht (kcal)", data: data.calories_out, backgroundColor: "rgba(220, 53, 69, 0.6)", borderColor: "#dc3545", borderWidth: 1, details: data.details_out, }
+                {
+                    label: "Aufgenommen",
+                    data: caloriesInClean,
+                    backgroundColor: "rgba(40, 167, 69, 0.7)",
+                },
+                {
+                    label: "Grundverbrauch",
+                    data: caloriesOutBmrClean,
+                    backgroundColor: "rgba(220, 53, 69, 0.4)",
+                    stack: 'Verbrauch',
+                },
+                {
+                    label: "Aktiv verbraucht",
+                    data: caloriesOutActiveClean,
+                    backgroundColor: "rgba(220, 53, 69, 0.8)",
+                    stack: 'Verbrauch',
+                }
             ],
         },
-        options: { scales: { y: { beginAtZero: true, grid: { color: "rgba(255, 255, 255, 0.1)" } }, x: { grid: { color: "rgba(255, 255, 255, 0.1)" } } }, plugins: { tooltip: { callbacks: { footer: (tooltipItems) => { let footerText = []; tooltipItems.forEach(item => { const details = item.dataset.details[item.dataIndex]; if (details && details.length > 0) { footerText.push(...details); } }); return footerText; } } } } }
+        options: {
+            scales: {
+                y: { stacked: true, beginAtZero: true, grid: { color: "rgba(255, 255, 255, 0.1)" } },
+                x: { grid: { color: "rgba(255, 255, 255, 0.1)" } }
+            },
+            
+            plugins: {
+                tooltip: {
+                     titleFont: {
+                        size: 24 // z.B. 16 Pixel für den Titel
+                    },
+                    bodyFont: {
+                        size: 24 // z.B. 14 Pixel für den Hauptteil
+                    },
+                    footerFont: {
+                        size: 24 // z.B. 12 Pixel für die Fußzeile
+                    },
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const dataIndex = tooltipItem.dataIndex;
+                            const value = tooltipItem.raw;
+                            let label = tooltipItem.dataset.label || '';
+
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += `${value} kcal`;
+
+                            if (datasetIndex === 1 || datasetIndex === 2) {
+                                const totalOut = caloriesOutBmrClean[dataIndex] + caloriesOutActiveClean[dataIndex];
+                                if (totalOut > 0) {
+                                    const percentage = (value / totalOut * 100).toFixed(1);
+                                    label += ` (${percentage}%)`;
+                                }
+                            }
+                            return label;
+                        },
+                        footer: function(tooltipItems) {
+                            const tooltipItem = tooltipItems[0];
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const dataIndex = tooltipItem.dataIndex;
+
+                            // =================================================================
+                            // NEU: Logik für prozentuale Anzeige der Aufnahme-Details
+                            // =================================================================
+                            if (datasetIndex === 0 && data.details_in[dataIndex]?.length > 0) {
+                                const totalIn = caloriesInClean[dataIndex];
+                                if (totalIn > 0) {
+                                    // Transformiere jeden Detail-Eintrag
+                                    return data.details_in[dataIndex].map(detail => {
+                                        // Extrahiere die Kalorienzahl aus dem String (z.B. "Apfel: 95 kcal")
+                                        const match = detail.match(/: (\d+(\.\d+)?)/);
+                                        if (match && match[1]) {
+                                            const value = parseFloat(match[1]);
+                                            const percentage = (value / totalIn * 100).toFixed(1);
+                                            return `${detail} (${percentage}%)`;
+                                        }
+                                        return detail; // Fallback, falls keine Zahl gefunden wird
+                                    });
+                                }
+                                return data.details_in[dataIndex];
+                            }
+                            // =================================================================
+
+                            if (datasetIndex === 2 && data.details_out[dataIndex]?.length > 0) {
+                                return data.details_out[dataIndex];
+                            }
+
+                            return [];
+                        }
+                    }
+                }
+            }
+        }
     });
 }
-
 /**
  * Aktualisiert die Dashboard-Karten mit den neuen Daten.
  * @param {object} domDashboardElements Ein Objekt mit den Referenzen auf die Dashboard-Elemente.
