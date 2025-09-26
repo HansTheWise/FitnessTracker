@@ -231,7 +231,7 @@ async function handleProfileSubmit(e) {
  * @param {string} entity - The entity type to determine required fields.
  * @returns {object|null} The payload object or null if validation fails.
  */
-function getPayloadFromForm(entity) {
+function getPayloadData(entity) {
     const formFields = { foods: ["name", "calories_per_100g"], exercisetypes: ["name", "calories_per_hour"], consumptionlogs: ["log_date", "food_id", "amount_g"], activitylogs: ["log_date", "exercise_type_id", "duration_min"] };
     const payload = {};
     for (const field of formFields[entity]) {
@@ -284,7 +284,7 @@ function openModal(entity, id = null) {
  * @param {string|null} id - The ID of the item to update, or null for creation.
  */
 async function saveItem(entity, id) {
-    const payload = getPayloadFromForm(entity);
+    const payload = getPayloadData(entity);
     if (!payload) return;
 
     const endpoint = id ? `/api/${entity}/${id}` : `/api/${entity}`;
