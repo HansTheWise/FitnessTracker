@@ -1,0 +1,86 @@
+/* Styles für den "Fun Mode"-Schalter und die GIFs */
+.fun-mode-switch-container {
+          position: absolute;
+          top: 70px;
+          /* Unter der Navbar positioniert */
+          left: 20px;
+          z-index: 1050;
+          /* Unter der Navbar, aber über dem Inhalt */
+}
+
+.fun-mode-switch {
+          width: 60px;
+          height: 34px;
+          background-color: #555;
+          border-radius: 34px;
+          cursor: pointer;
+          position: relative;
+          display: block;
+          transition: background-color 0.2s;
+}
+
+.fun-mode-switch::before {
+          content: '';
+          position: absolute;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background-color: rgb(46, 46, 46);
+          top: 4px;
+          left: 4px;
+          transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          /* Flip-ähnliche Transition */
+}
+
+#fun-mode-toggle {
+          display: none;
+          /* Die eigentliche Checkbox verstecken */
+}
+
+#fun-mode-toggle:checked+.fun-mode-switch {
+          background-color: #345e3e;
+          /* Grün, wenn an */
+}
+
+#fun-mode-toggle:checked+.fun-mode-switch::before {
+          transform: translateX(26px) rotate(360deg);
+          /* Verschieben und rotieren für Flip-Effekt */
+}
+
+/* Fun Mode GIFs */
+.fun-gif-container {
+          position: fixed;
+          top: 50%;
+          /* Vertikal zentriert */
+          width: 250px;
+          height: auto;
+          z-index: -1;
+          /* Im absoluten Hintergrund platzieren */
+          pointer-events: none;
+          /* Erlaubt das Klicken durch das GIF */
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.fun-gif-container.show {
+          opacity: 1;
+          visibility: visible;
+}
+
+#fun-gif-left {
+          left: 20px;
+          transform: translateY(-50%);
+          /* Korrektur für vertikale Zentrierung */
+}
+
+#fun-gif-right {
+          right: 20px;
+          transform: translateY(-50%) scaleX(-1);
+          /* Korrektur und horizontales Spiegeln */
+}
+
+.fun-gif-container img {
+          width: 100%;
+          height: auto;
+}

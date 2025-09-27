@@ -27,6 +27,17 @@ dom.modal.confirm = new bootstrap.Modal(document.getElementById("confirm-modal")
 dom.modal.confirmMessage = document.getElementById("confirm-message");
 dom.modal.confirmBtn = document.getElementById("confirm-btn");
 
+function handleFunModeToggle(e) {
+    const isEnabled = e.target.checked;
+    if (isEnabled) {
+        dom.funMode.gifLeft.classList.add('show');
+        dom.funMode.gifRight.classList.add('show');
+    } else {
+        dom.funMode.gifLeft.classList.remove('show');
+        dom.funMode.gifRight.classList.remove('show');
+    }
+}
+
 
 const SELECT_OPTIONS_CONFIG = {
     'foods': {
@@ -426,6 +437,8 @@ function addEventListeners() {
     dom.auth.form.addEventListener("submit", handleAuthSubmit);
     dom.dashboard.periodSelector.addEventListener("click", handlePeriodChange);
     dom.profile.form.addEventListener("submit", handleProfileSubmit);
+    dom.funMode.toggle.addEventListener('change', handleFunModeToggle);
+
     dom.dashboard.goalCard.addEventListener('click', () => {
         if (dom.dashboard.goalCard.classList.contains('goal-reached-clickable')) {
             triggerConfetti();

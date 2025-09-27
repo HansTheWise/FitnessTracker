@@ -44,6 +44,11 @@ export function bindDOM() {
             saveBtn: document.getElementById("modal-save-btn"),
         },
         toastContainer: document.getElementById('toast-container'),
+        funMode: {
+            toggle: document.getElementById('fun-mode-toggle'),
+            gifLeft: document.getElementById('fun-gif-left'),
+            gifRight: document.getElementById('fun-gif-right'),},
+
     };
 }
 
@@ -141,13 +146,13 @@ export function renderChart(chartCanvas, data) {
             plugins: {
                 tooltip: {
                      titleFont: {
-                        size: 24 // z.B. 16 Pixel für den Titel
+                        size: 20 // z.B. 16 Pixel für den Titel
                     },
                     bodyFont: {
-                        size: 24 // z.B. 14 Pixel für den Hauptteil
+                        size: 20 // z.B. 14 Pixel für den Hauptteil
                     },
                     footerFont: {
-                        size: 24 // z.B. 12 Pixel für die Fußzeile
+                        size: 20 // z.B. 12 Pixel für die Fußzeile
                     },
                     callbacks: {
                         label: function(tooltipItem) {
@@ -198,6 +203,20 @@ export function renderChart(chartCanvas, data) {
                             // =================================================================
 
                             if (datasetIndex === 2 && data.details_out[dataIndex]?.length > 0) {
+                                const totalActiveOut = caloriesOutActiveClean[dataIndex];
+                                if (totalActiveOut > 0) {
+                                    // Transformiere jeden Detail-Eintrag, um den Prozentanteil hinzuzufügen
+                                    return data.details_out[dataIndex].map(detail => {
+                                        // Extrahiere die Kalorienzahl aus dem String (z.B. "Joggen: 350 kcal")
+                                        const match = detail.match(/: (\d+(\.\d+)?)/);
+                                        if (match && match[1]) {
+                                            const value = parseFloat(match[1]);
+                                            const percentage = (value / totalActiveOut * 100).toFixed(1);
+                                            return `${detail} (${percentage}%)`;
+                                        }
+                                        return detail; // Fallback, falls keine Zahl gefunden wird
+                                    });
+                                }
                                 return data.details_out[dataIndex];
                             }
 

@@ -1,0 +1,28 @@
+body {
+          background-color: #212529;
+          color: #dee2e6;
+}
+
+main.container {
+          background-color: #212529;
+          position: relative;
+          /* Stacking-Kontext herstellen */
+          z-index: 1;
+          /* Stellt sicher, dass der Hauptinhalt über den Hintergrund-GIFs liegt */
+}
+
+.nav-link.active {
+          font-weight: bold;
+}
+
+.table {
+          --bs-table-bg: #343a40;
+          --bs-table-striped-bg: #454d55;
+          --bs-table-hover-bg: #4f5861;
+          --bs-table-color: #dee2e6;
+          --bs-table-border-color: #495057;
+}
+
+.btn-action {
+          width: 40px;
+}
