@@ -97,6 +97,10 @@
                             <div class="col-md-6 mb-3"><label for="profile-start-date"
                                     class="form-label">Tracking-Startdatum</label><input type="date"
                                     id="profile-start-date" class="form-control"></div>
+                            <div class="col-md-6 mb-3">
+                                <label for="profile-balance-goal" class="form-label">Tägliches Bilanzziel (kcal)</label>
+                                <input type="number" id="profile-balance-goal" class="form-control" placeholder="z.B. -500 für Defizit">
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Profil speichern</button>
                     </form>
@@ -114,19 +118,25 @@
                         </div>
                     </div>
                     <div class="row g-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card dashboard-card p-3 text-center">
                                 <h5 class="text-success">Aufgenommen</h5>
                                 <p id="total-in" class="fs-2 mb-0">0 kcal</p>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card dashboard-card p-3 text-center">
                                 <h5 id="balance-title" class="text-info">Bilanz</h5>
                                 <p id="total-balance" class="fs-2 mb-0">0 kcal</p>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div id="goal-card" class="col-md-3">
+                            <div class="card dashboard-card p-3 text-center">
+                                <h5 id="balance-goal-title" class="text-warning">Verbleibend z. Ziel</h5>
+                                <p id="balance-goal-number" class="fs-2 mb-0">0 kcal</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="card dashboard-card p-3 text-center">
                                 <h5 class="text-danger">Verbraucht</h5>
                                 <p id="total-out" class="fs-2 mb-0">0 kcal</p>
@@ -208,6 +218,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
         <script src="/static/js/api.js" type="module"></script>

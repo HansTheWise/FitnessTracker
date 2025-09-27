@@ -21,7 +21,11 @@ export function bindDOM() {
             totalOut: document.getElementById("total-out"),
             totalBalance: document.getElementById("total-balance"),
             balanceTitle: document.getElementById("balance-title"),
+            balanceGoalNumber: document.getElementById("balance-goal-number"),
+            balanceGoalTitle: document.getElementById("balance-goal-title"),
             chartCanvas: document.getElementById("energy-chart"),
+            goalCard: document.getElementById("goal-card")
+
         },
         profile: {
             form: document.getElementById("profile-form"),
@@ -30,6 +34,7 @@ export function bindDOM() {
             height: document.getElementById("profile-height"),
             weight: document.getElementById("profile-weight"),
             startDate: document.getElementById("profile-start-date"),
+            balanceGoal: document.getElementById("profile-balance-goal"),
         },
         modal: {
             instance: new bootstrap.Modal(document.getElementById("item-modal")),
@@ -111,18 +116,18 @@ export function renderChart(chartCanvas, data) {
                 {
                     label: "Aufgenommen",
                     data: caloriesInClean,
-                    backgroundColor: "rgba(40, 167, 69, 0.7)",
+                    backgroundColor: "rgba(32, 131, 55, 0.7)",
                 },
                 {
                     label: "Grundverbrauch",
                     data: caloriesOutBmrClean,
-                    backgroundColor: "rgba(220, 53, 69, 0.4)",
+                    backgroundColor: "rgba(148, 36, 36, 0.65)",
                     stack: 'Verbrauch',
                 },
                 {
                     label: "Aktiv verbraucht",
                     data: caloriesOutActiveClean,
-                    backgroundColor: "rgba(220, 53, 69, 0.8)",
+                    backgroundColor: "rgba(164, 52, 42, 0.69)",
                     stack: 'Verbrauch',
                 }
             ],
@@ -204,6 +209,20 @@ export function renderChart(chartCanvas, data) {
         }
     });
 }
+
+let goalAlreadyReached = false;
+
+/**
+ * Löst einen Konfetti-Effekt aus.
+ */
+export function triggerConfetti() {
+    confetti({
+        particleCount: 150,
+        spread: 90,
+        origin: { y: 0.6 }
+    });
+}
+
 /**
  * Aktualisiert die Dashboard-Karten mit den neuen Daten.
  * @param {object} domDashboardElements Ein Objekt mit den Referenzen auf die Dashboard-Elemente.
@@ -214,6 +233,49 @@ export function updateDashboardCards(domDashboardElements, data) {
     domDashboardElements.totalOut.textContent = `${data.total_out} kcal`;
     const balance = data.balance;
     domDashboardElements.totalBalance.textContent = `${balance >= 0 ? '+' : ''}${balance} kcal`;
+
     domDashboardElements.balanceTitle.className = balance >= 0 ? 'text-success' : 'text-danger';
     domDashboardElements.totalBalance.className = `fs-2 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'}`;
+
+    if (data.balance_goal !== null && data.balance_goal !== undefined) {
+        const goal = data.balance_goal;
+        let isGoalReached = false;
+
+        if (goal <= 0) { isGoalReached = balance <= goal; } 
+        else { isGoalReached = balance >= goal; }
+
+        if (isGoalReached) {
+            const surplus = Math.abs(balance - goal);
+            domDashboardElements.balanceGoalTitle.textContent = '🎉 Super!';
+            domDashboardElements.balanceGoalNumber.textContent = `${surplus} kcal über Ziel`;
+            // NEU: Fügt eine Klasse hinzu, um die Karte für den Klick vorzubereiten
+            domDashboardElements.goalCard.classList.add('goal-reached-clickable');
+        } else {
+            domDashboardElements.balanceGoalTitle.textContent = 'Verbleibend z. Ziel';
+            const remainingGoal = goal - balance;
+            domDashboardElements.balanceGoalNumber.textContent = `${remainingGoal >= 0 ? '+' : ''}${remainingGoal} kcal`;
+            // NEU: Entfernt die Klasse, falls das Ziel nicht mehr erreicht ist
+            domDashboardElements.goalCard.classList.remove('goal-reached-clickable');
+        }
+
+        const titleClasses = domDashboardElements.balanceGoalTitle.classList;
+        const numberClasses = domDashboardElements.balanceGoalNumber.classList;
+        titleClasses.remove('text-success', 'text-danger', 'text-warning');
+        numberClasses.remove('text-success', 'text-danger', 'text-warning');
+        titleClasses.add(isGoalReached ? 'text-success' : 'text-danger');
+        numberClasses.add(isGoalReached ? 'text-success' : 'text-danger');
+
+    } else {
+        domDashboardElements.balanceGoalNumber.textContent = '---';
+        domDashboardElements.balanceGoalTitle.textContent = 'Verbleibend z. Ziel';
+        domDashboardElements.balanceGoalTitle.classList.remove('text-success', 'text-danger');
+        domDashboardElements.balanceGoalTitle.classList.add('text-warning');
+        // NEU: Stellt sicher, dass die Klasse auch hier entfernt wird
+        domDashboardElements.goalCard.classList.remove('goal-reached-clickable');
+        
+    }
 }
+
+
+
+

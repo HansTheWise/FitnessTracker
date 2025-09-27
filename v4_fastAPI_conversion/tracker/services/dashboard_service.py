@@ -121,6 +121,8 @@ def get_dashboard_data_for_period(db: Session, user_id: int, period: str):
 
     profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     daily_bmr, tracking_start = _calculate_bmr(profile)
+    goal_kcal = profile.balance_goal_kcal if profile and profile.balance_goal_kcal is not None else 0
+
 
     consumptions = db.query(ConsumptionLog).filter(ConsumptionLog.user_id == user_id, ConsumptionLog.log_date.between(start_date, end_date)).all()
     activities = db.query(ActivityLog).filter(ActivityLog.user_id == user_id, ActivityLog.log_date.between(start_date, end_date)).all()
@@ -145,5 +147,6 @@ def get_dashboard_data_for_period(db: Session, user_id: int, period: str):
         'details_out': details_out,
         'total_in': total_in,
         'total_out': total_out,
-        'balance': balance
+        'balance': balance,
+        'balance_goal': goal_kcal
     }

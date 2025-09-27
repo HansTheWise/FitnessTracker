@@ -23,5 +23,5 @@ class UserProfile(Base):
     height_cm: Mapped[Optional[int]] = mapped_column()
     weight_kg: Mapped[Optional[float]] = mapped_column()
     tracking_start_date: Mapped[Optional[date]] = mapped_column()
-    
+    balance_goal_kcal: Mapped[Optional[int]] = mapped_column()
     user: Mapped["User"] = relationship(back_populates='profile')

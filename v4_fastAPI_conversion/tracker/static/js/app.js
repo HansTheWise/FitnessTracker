@@ -1,5 +1,6 @@
 import { apiFetch, AuthError } from './api.js';
-import { bindDOM, clearModalError, renderChart, showModalError, showToast, updateDashboardCards } from './ui.js';
+import { bindDOM, clearModalError, renderChart, showModalError, showToast, triggerConfetti, updateDashboardCards } from './ui.js';
+
 
 /**
  * Initializes and returns the application's state object.
@@ -122,6 +123,7 @@ async function loadProfileData() {
         dom.profile.height.value = data.height_cm || '';
         dom.profile.weight.value = data.weight_kg || '';
         dom.profile.startDate.value = data.tracking_start_date || '';
+        dom.profile.balanceGoal.value = data.balance_goal_kcal || '';
     } catch (error) {
         if (error instanceof AuthError) logout();
         console.error("Error loading profile:", error);
@@ -181,7 +183,7 @@ async function handleAuthSubmit(e) {
         if (state.isLoginMode) {
             localStorage.setItem("jwt_token", data.access_token);
             dom.auth.form.reset();
-            initializeApp();
+            await initializeApp();
         } else {
             showToast(dom.toastContainer, "Registrierung erfolgreich! Bitte melden Sie sich an.");
             toggleAuthMode();
@@ -214,7 +216,8 @@ async function handleProfileSubmit(e) {
         age: dom.profile.age.value ? parseInt(dom.profile.age.value, 10) : null,
         height_cm: dom.profile.height.value ? parseInt(dom.profile.height.value, 10) : null,
         weight_kg: dom.profile.weight.value ? parseFloat(dom.profile.weight.value) : null,
-        tracking_start_date: dom.profile.startDate.value || null
+        tracking_start_date: dom.profile.startDate.value || null,
+        balance_goal_kcal: dom.profile.balanceGoal.value ? parseInt(dom.profile.balanceGoal.value, 10) : null
     };
     try {
         await apiFetch('/api/profile', { method: 'PUT', body: payload });
@@ -423,7 +426,11 @@ function addEventListeners() {
     dom.auth.form.addEventListener("submit", handleAuthSubmit);
     dom.dashboard.periodSelector.addEventListener("click", handlePeriodChange);
     dom.profile.form.addEventListener("submit", handleProfileSubmit);
-
+    dom.dashboard.goalCard.addEventListener('click', () => {
+        if (dom.dashboard.goalCard.classList.contains('goal-reached-clickable')) {
+            triggerConfetti();
+        }
+    });
     document.querySelectorAll('[data-action="open-modal"]').forEach(button => {
         button.addEventListener('click', () => openModal(button.dataset.entity));
     });
@@ -436,6 +443,6 @@ function addEventListeners() {
 }
 
 // --- App Startup ---
+
 addEventListeners();
 checkInitialAuth();
-

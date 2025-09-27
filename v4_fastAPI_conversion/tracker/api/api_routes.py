@@ -34,38 +34,32 @@ def get_dashboard(
         # Log the error in a real application
         raise HTTPException(status_code=500, detail="An internal server error occurred")
 
-# ==============================================================================
-# Generic CRUD Routes for Tracking Entities
-# ==============================================================================
-
-# This map is the equivalent of your Flask ENTITY_MAP.
-# It connects URL paths to models and schemas.
-# FIX: Updated 'pk' values to 'id' to match the updated SQLAlchemy models.
+#Entity map um dynamisch die crud funktionen mit den richtigen parametern zu füttern
 ENTITY_MAP = {
     'foods': {
         'model': tracking_models.Food,
-        'pk': 'id', # Formerly 'food_id'
+        'pk': 'id',
         'schema': tracking_schemas.Food,
         'create_schema': tracking_schemas.FoodCreate,
         'update_schema': tracking_schemas.FoodUpdate,
     },
     'exercisetypes': {
         'model': tracking_models.ExerciseType,
-        'pk': 'id', # Formerly 'exercise_type_id'
+        'pk': 'id', 
         'schema': tracking_schemas.ExerciseType,
         'create_schema': tracking_schemas.ExerciseTypeCreate,
         'update_schema': tracking_schemas.ExerciseTypeUpdate,
     },
     'consumptionlogs': {
         'model': tracking_models.ConsumptionLog,
-        'pk': 'id', # Formerly 'consumption_log_id'
+        'pk': 'id', 
         'schema': tracking_schemas.ConsumptionLog,
         'create_schema': tracking_schemas.ConsumptionLogCreate,
         'update_schema': tracking_schemas.ConsumptionLogUpdate,
     },
     'activitylogs': {
         'model': tracking_models.ActivityLog,
-        'pk': 'id', # Formerly 'activity_log_id'
+        'pk': 'id',
         'schema': tracking_schemas.ActivityLog,
         'create_schema': tracking_schemas.ActivityLogCreate,
         'update_schema': tracking_schemas.ActivityLogUpdate,
@@ -73,7 +67,7 @@ ENTITY_MAP = {
 }
 
 def get_entity_config(entity_name: str):
-    """Helper to get config and raise 404 if not found."""
+    """Hilfsfunktion welche auf die ENTITY_MAP zugreift um die passenden parameter für einen entity type zu finden """
     config = ENTITY_MAP.get(entity_name)
     if not config:
         raise HTTPException(status_code=404, detail="Entity type not found")
@@ -85,24 +79,25 @@ def get_entities(
     current_user: user_models.User = Depends(security.get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generic endpoint to list items for an entity type."""
+    """
+    holt sich die config und sucht dann mit der get_items_by_user() crud funktion nach dem passenden entitys
+    nimmt die entity items list und validiert diese und passt sie an unser schema für das entity an 
+    und gibt das eine liste von validierten entity schemas zurück
+    """
     config = get_entity_config(entity_name)
     items = crud.get_items_by_user(db, user_id=current_user.user_id, model_class=config['model'])
     
-    # We need to manually validate with the correct schema here
-    # because FastAPI can't determine the response_model dynamically.
     Schema = config['schema']
     return [Schema.model_validate(item) for item in items]
 
 @router.post("/{entity_name}", response_model=Any, status_code=status.HTTP_201_CREATED)
 def create_entity(
     entity_name: str,
-    # The actual schema will be determined and validated inside the function
     item_data: tracking_schemas.ItemCreate, 
     current_user: user_models.User = Depends(security.get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generic endpoint to create an item for an entity type."""
+    """endpoint to create an item for an entity type."""
     config = get_entity_config(entity_name)
     CreateSchema = config['create_schema']
     
@@ -125,7 +120,7 @@ def update_entity(
     current_user: user_models.User = Depends(security.get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generic endpoint to update an item."""
+    """endpoint to update an item."""
     config = get_entity_config(entity_name)
     UpdateSchema = config['update_schema']
     
@@ -150,7 +145,7 @@ def delete_entity(
     current_user: user_models.User = Depends(security.get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generic endpoint to delete an item."""
+    """endpoint to delete an item."""
     config = get_entity_config(entity_name)
     db_item = crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
     if not db_item:

@@ -14,7 +14,14 @@ body {
           --bs-table-color: #dee2e6;
           --bs-table-border-color: #495057;
 }
+.goal-reached-clickable .card {
+          cursor: pointer;
+          transition: transform 0.3s ease-in-out;
+}
 
+.goal-reached-clickable:hover .card {
+          transform: scale(1.03);
+}
 .btn-action {
           width: 40px;
 }

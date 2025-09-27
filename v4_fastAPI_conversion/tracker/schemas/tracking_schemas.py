@@ -30,6 +30,7 @@ class UserProfileBase(BaseModel):
     height_cm: Optional[int] = None
     weight_kg: Optional[float] = None
     tracking_start_date: Optional[date] = None
+    balance_goal_kcal: Optional[int] = None
 
 
 # ==============================================================================
@@ -130,6 +131,7 @@ class DashboardData(BaseModel):
     total_in: float
     total_out: float
     balance: float
+    balance_goal: int
 # ==============================================================================
 # Authentication Schemas
 # ==============================================================================
