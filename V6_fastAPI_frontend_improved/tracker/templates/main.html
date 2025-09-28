@@ -1,0 +1,157 @@
+<!-- Main App View -->
+<div id="app-view">
+          <ul class="nav nav-tabs" id="main-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
+                                        data-bs-target="#profile-pane" type="button" role="tab">Profil</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab"
+                                        data-bs-target="#dashboard-pane" type="button" role="tab">Auswertung</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="foods-tab" data-bs-toggle="tab" data-bs-target="#foods-pane"
+                                        type="button" role="tab">Nahrungsmittel</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="exercises-tab" data-bs-toggle="tab"
+                                        data-bs-target="#exercises-pane" type="button"
+                                        role="tab">Bewegungsformen</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="consumptions-tab" data-bs-toggle="tab"
+                                        data-bs-target="#consumptions-pane" type="button" role="tab">Konsum</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="activities-tab" data-bs-toggle="tab"
+                                        data-bs-target="#activities-pane" type="button" role="tab">Aktivitäten</button>
+                    </li>
+          </ul>
+          <div class="tab-content pt-3" id="main-tab-content">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade" id="profile-pane" role="tabpanel" aria-labelledby="profile-tab">
+                              <h3>Ihr Profil</h3>
+                              <p class="text-muted">Ihre Angaben werden zur Berechnung Ihres täglichen Grundumsatzes
+                                        (BMR) verwendet.</p>
+                              <form id="profile-form">
+                                        <div class="row">
+                                                  <div class="col-md-6 mb-3"><label for="profile-gender"
+                                                                      class="form-label">Geschlecht</label><select
+                                                                      id="profile-gender" class="form-select">
+                                                                      <option value="">Bitte wählen...</option>
+                                                                      <option value="male">Männlich</option>
+                                                                      <option value="female">Weiblich</option>
+                                                            </select></div>
+                                                  <div class="col-md-6 mb-3"><label for="profile-age"
+                                                                      class="form-label">Alter (Jahre)</label><input
+                                                                      type="number" id="profile-age"
+                                                                      class="form-control" min="1"></div>
+                                                  <div class="col-md-6 mb-3"><label for="profile-height"
+                                                                      class="form-label">Größe (cm)</label><input
+                                                                      type="number" id="profile-height"
+                                                                      class="form-control" min="1"></div>
+                                                  <div class="col-md-6 mb-3"><label for="profile-weight"
+                                                                      class="form-label">Gewicht (kg)</label><input
+                                                                      type="number" id="profile-weight"
+                                                                      class="form-control" step="0.1" min="1"></div>
+                                                  <div class="col-md-6 mb-3"><label for="profile-start-date"
+                                                                      class="form-label">Tracking-Startdatum</label><input
+                                                                      type="date" id="profile-start-date"
+                                                                      class="form-control"></div>
+                                                  <div class="col-md-6 mb-3"><label for="profile-balance-goal"
+                                                                      class="form-label">Tägliches Bilanzziel
+                                                                      (kcal)</label><input type="number"
+                                                                      id="profile-balance-goal" class="form-control"
+                                                                      placeholder="z.B. -500 für Defizit"></div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Profil speichern</button>
+                              </form>
+                    </div>
+                    <!-- Dashboard Tab -->
+                    <div class="tab-pane fade show active" id="dashboard-pane" role="tabpanel"
+                              aria-labelledby="dashboard-tab">
+                              <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h3>Energiebilanz</h3>
+                                        <div class="btn-group" role="group" id="period-selector">
+                                                  <button type="button" class="btn btn-outline-primary active"
+                                                            data-period="week">Woche</button>
+                                                  <button type="button" class="btn btn-outline-primary"
+                                                            data-period="day">Tag</button>
+                                                  <button type="button" class="btn btn-outline-primary"
+                                                            data-period="month">Monat</button>
+                                                  <button type="button" class="btn btn-outline-primary"
+                                                            data-period="year">Jahr</button>
+                                        </div>
+                              </div>
+                              <div class="row g-4">
+                                        <div class="col-md-3">
+                                                  <div class="card dashboard-card p-3 text-center">
+                                                            <h5 class="text-success">Aufgenommen</h5>
+                                                            <p id="total-in" class="fs-2 mb-0">0 kcal</p>
+                                                  </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                                  <div class="card dashboard-card p-3 text-center">
+                                                            <h5 id="balance-title" class="text-info">Bilanz</h5>
+                                                            <p id="total-balance" class="fs-2 mb-0">0 kcal</p>
+                                                  </div>
+                                        </div>
+                                        <div id="goal-card" class="col-md-3">
+                                                  <div class="card dashboard-card p-3 text-center">
+                                                            <h5 id="balance-goal-title" class="text-warning">Verbleibend
+                                                                      z. Ziel</h5>
+                                                            <p id="balance-goal-number" class="fs-2 mb-0">0 kcal</p>
+                                                  </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                                  <div class="card dashboard-card p-3 text-center">
+                                                            <h5 class="text-danger">Verbraucht</h5>
+                                                            <p id="total-out" class="fs-2 mb-0">0 kcal</p>
+                                                  </div>
+                                        </div>
+                                        <div class="col-12">
+                                                  <div class="card dashboard-card p-3"><canvas
+                                                                      id="energy-chart"></canvas></div>
+                                        </div>
+                              </div>
+                    </div>
+                    <!-- Data Table Tabs -->
+                    <div class="tab-pane fade" id="foods-pane" role="tabpanel" aria-labelledby="foods-tab">
+                              <div class="d-flex justify-content-between align-items-center my-3">
+                                        <h3>Ihre Nahrungsmittel</h3><button class="btn btn-success"
+                                                  data-action="open-modal" data-entity="foods"><i
+                                                            class="bi bi-plus-lg"></i> Hinzufügen</button>
+                              </div>
+                              <data-table entity="foods"
+                                        columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_100g", "label": "Kalorien / 100g"}]'></data-table>
+                    </div>
+                    <div class="tab-pane fade" id="exercises-pane" role="tabpanel" aria-labelledby="exercises-tab">
+                              <div class="d-flex justify-content-between align-items-center my-3">
+                                        <h3>Ihre Bewegungsformen</h3><button class="btn btn-success"
+                                                  data-action="open-modal" data-entity="exercisetypes"><i
+                                                            class="bi bi-plus-lg"></i> Hinzufügen</button>
+                              </div>
+                              <data-table entity="exercisetypes"
+                                        columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_hour", "label": "Kalorien / Stunde"}]'></data-table>
+                    </div>
+                    <div class="tab-pane fade" id="consumptions-pane" role="tabpanel"
+                              aria-labelledby="consumptions-tab">
+                              <div class="d-flex justify-content-between align-items-center my-3">
+                                        <h3>Ihr Konsum</h3><button class="btn btn-success" data-action="open-modal"
+                                                  data-entity="consumptionlogs"><i class="bi bi-plus-lg"></i>
+                                                  Protokollieren</button>
+                              </div>
+                              <data-table entity="consumptionlogs"
+                                        columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "food_name", "label": "Nahrungsmittel"}, {"key": "amount_g", "label": "Menge (g)"}]'></data-table>
+                    </div>
+                    <div class="tab-pane fade" id="activities-pane" role="tabpanel" aria-labelledby="activities-tab">
+                              <div class="d-flex justify-content-between align-items-center my-3">
+                                        <h3>Ihre Aktivitäten</h3><button class="btn btn-success"
+                                                  data-action="open-modal" data-entity="activitylogs"><i
+                                                            class="bi bi-plus-lg"></i> Protokollieren</button>
+                              </div>
+                              <data-table entity="activitylogs"
+                                        columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "exercise_name", "label": "Bewegung"}, {"key": "duration_min", "label": "Dauer (min)"}]'></data-table>
+                    </div>
+          </div>
+</div>

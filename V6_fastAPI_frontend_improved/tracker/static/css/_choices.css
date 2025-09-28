@@ -1,0 +1,26 @@
+/* Spezifische Dark-Mode-Styles für die Choices.js-Bibliothek */
+.choices__inner {
+          background-color: #343a40;
+          border: 1px solid #495057;
+          color: #dee2e6;
+          border-radius: .375rem;
+}
+
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+          background-color: #343a40;
+          border-color: #495057;
+}
+
+.choices__input {
+          background-color: #343a40 !important;
+          color: #dee2e6;
+}
+
+.choices__item {
+          color: #dee2e6;
+}
+
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+          background-color: #495057 !important;
+}

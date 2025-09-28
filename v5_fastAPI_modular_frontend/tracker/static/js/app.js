@@ -1,6 +1,7 @@
 import { apiFetch, AuthError } from './api.js';
 import { bindDOM, clearModalError, rebindDynamicElements, renderChart, showModalError, showToast, triggerConfetti, updateDashboardCards } from './ui.js';
 
+//! state objekt zur only source of truth machen
 /**
  * Initializes and returns the application's state object.
  * @returns {Object} The initial state object.

@@ -1,0 +1,13 @@
+/* Styles für alle Karten-Elemente */
+.dashboard-card {
+          background-color: #343a40;
+}
+
+.goal-reached-clickable .card {
+          cursor: pointer;
+          transition: transform 0.3s ease-in-out;
+}
+
+.goal-reached-clickable:hover .card {
+          transform: scale(1.03);
+}
