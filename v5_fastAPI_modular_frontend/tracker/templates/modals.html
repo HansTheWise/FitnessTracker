@@ -1,0 +1,38 @@
+<!-- Modal for Create/Edit -->
+<div class="modal fade" id="item-modal" tabindex="-1">
+          <div class="modal-dialog">
+                    <div class="modal-content">
+                              <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-title">Element</h5><button type="button"
+                                                  class="btn-close" data-bs-dismiss="modal"></button>
+                              </div>
+                              <div class="modal-body">
+                                        <form id="modal-form"></form>
+                                        <!-- Moved from JS to here for structure -->
+                                        <div class="modal-error-display alert alert-danger mt-3" style="display: none;">
+                                        </div>
+                              </div>
+                              <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                                                  data-bs-dismiss="modal">Abbrechen</button><button type="button"
+                                                  class="btn btn-primary" id="modal-save-btn">Speichern</button></div>
+                    </div>
+          </div>
+</div>
+
+<!-- Confirmation Modal for Delete -->
+<div class="modal fade" id="confirm-modal" tabindex="-1">
+          <div class="modal-dialog">
+                    <div class="modal-content">
+                              <div class="modal-header">
+                                        <h5 class="modal-title">Bestätigung</h5><button type="button" class="btn-close"
+                                                  data-bs-dismiss="modal"></button>
+                              </div>
+                              <div class="modal-body">
+                                        <p id="confirm-message">Möchten Sie dies wirklich tun?</p>
+                              </div>
+                              <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                                                  data-bs-dismiss="modal">Abbrechen</button><button type="button"
+                                                  class="btn btn-danger" id="confirm-btn">Löschen</button></div>
+                    </div>
+          </div>
+</div>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <!-- Annahme: Pfad zu deiner CSS-Datei -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+
+    <!-- Statische Elemente, die immer da sind -->
+    <div class="fun-mode-switch-container">
+        <input type="checkbox" id="fun-mode-toggle">
+        <label for="fun-mode-toggle" class="fun-mode-switch"></label>
+    </div>
+    <div id="fun-gif-left" class="fun-gif-container">
+        <img src="https://media1.tenor.com/m/dZZeViplV5UAAAAd/inscryption.gif" alt="Dancing Banana">
+    </div>
+    <div id="fun-gif-right" class="fun-gif-container">
+        <img src="https://media1.tenor.com/m/dZZeViplV5UAAAAd/inscryption.gif" alt="Dancing Banana">
+    </div>
+    <div id="toast-container"></div>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-body" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="bi bi-heart-pulse-fill text-danger"></i> Fitness Tracker</a>
+            <div class="d-flex" id="auth-nav-section"></div>
+        </div>
+    </nav>
+
+    <!-- Container für dynamisch geladene Komponenten -->
+    <main class="container mt-4" id="main-container">
+        <!-- Hier werden auth-view.html oder app-view.html geladen -->
+    </main>
+
+    <!-- Container für die Modals -->
+    <div id="modals-container">
+        <!-- Hier wird modals.html geladen -->
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Annahme: Pfade zu deinen JS-Dateien -->
+        <script src="/static/js/api.js" type="module"></script>
+        <script src="/static/js/ui.js" type="module"></script>
+        <script src="/static/js/DataTable.js" type="module"></script>
+        <script src="/static/js/app.js" type="module"></script>
+</body>
+
+</html>
