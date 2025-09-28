@@ -11,7 +11,7 @@
                 "tracker.main:app",
                 "--reload"
             ],
-            "cwd": "${workspaceFolder}/V6_fastAPI_frontend_improved" // <-- Diese Zeile hinzufügen
+            "cwd": "${workspaceFolder}/v5_fastAPI_modular_frontend" // <-- Diese Zeile hinzufügen
         }
     ]
 }
