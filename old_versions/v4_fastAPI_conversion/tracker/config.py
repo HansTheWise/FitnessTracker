@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     # --- JWT Authentifizierungs-Einstellungen ---
     # Der geheime Schlüssel zum Signieren von JWTs. Sollte lang und zufällig sein.
-    JWT_SECRET_KEY: str = "please_change_me_in_production"
+    JWT_SECRET_KEY: str = "please_dont_do_it_:c"
     
     # Der Algorithmus, der für die JWT-Signatur verwendet wird (z.B. "HS256").
     JWT_ALGORITHM: str = "HS256"
