@@ -4,7 +4,8 @@ import { ProfileComponent } from './components/Profile.js';
 import { DashboardService } from './services/DashboardService.js';
 import { StateService } from './services/StateService.js';
 // KORREKTUR: Alle benötigten UI-Funktionen werden importiert
-import { bindDOM, rebindDynamicElements, renderChart, updateDashboardCards } from './ui.js';
+import './DataTable.js';
+import { bindDOM, handleFunModeToggle, rebindDynamicElements, renderChart, triggerConfetti, updateDashboardCards } from './ui.js';
 
 // Globaler Namespace für die App
 window.app = {};
@@ -98,6 +99,14 @@ async function initializeApp() {
                 }
             });
         }
+        if (dom.dashboard.goalCard) {
+            dom.dashboard.goalCard.addEventListener('click', () => {
+                // Prüft, ob die Karte die spezielle Klasse hat, die in ui.js gesetzt wird
+                if (dom.dashboard.goalCard.classList.contains('goal-reached-clickable')) {
+                    triggerConfetti();
+                }
+            });
+        }
 
     } catch (error) {
         console.error("Initialization failed:", error);
@@ -128,6 +137,9 @@ async function startup() {
     dom.modal.confirm = new bootstrap.Modal(document.getElementById("confirm-modal"));
 
     await checkInitialAuth();
+    if (dom.funMode.toggle) {
+        dom.funMode.toggle.addEventListener('change', handleFunModeToggle);
+        };
 }
 
 // Start the application

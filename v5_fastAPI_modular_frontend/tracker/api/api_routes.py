@@ -11,7 +11,7 @@ from ..database import get_db
 from ..models import user_models, tracking_models
 
 router = APIRouter()
-
+#! wir ins frond end ausgelagert
 # ==============================================================================
 # Dashboard Route
 # ==============================================================================

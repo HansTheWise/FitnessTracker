@@ -24,7 +24,10 @@ class DataTable extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        if (name === "columns") this._columns = JSON.parse(newValue);
+        if (name === "columns") {
+            this._columns = JSON.parse(newValue);
+            this.render();
+            }
     }
 
     set data(data) {
@@ -36,6 +39,9 @@ class DataTable extends HTMLElement {
         const columns = this._columns || [];
         const data = this._data || [];
 
+        if (!this._columns) {
+            return;
+        }
 
         /*
         wir nutzen ein standart table html element und erzeugen für dieses dynamisch den table head mit dem columns array
