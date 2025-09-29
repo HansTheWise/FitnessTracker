@@ -5,44 +5,15 @@ from typing import List, Any
 
 from .. import security
 from ..crud import crud
-from ..schemas import tracking_schemas
 from ..database import get_db
-from ..models import user_models, tracking_models
 
+from ..models import user_models, tracking_models
+from ..schemas import tracking_schemas
+from entity_config import ENTITY_MAP, get_entity_config
 router = APIRouter()
 
 
 #Entity map um dynamisch die crud funktionen mit den richtigen parametern zu füttern
-ENTITY_MAP = {
-    'foods': {
-        'model': tracking_models.Food,
-        'pk': 'id',
-        'schema': tracking_schemas.Food,
-        'create_schema': tracking_schemas.FoodCreate,
-        'update_schema': tracking_schemas.FoodUpdate,
-    },
-    'exercisetypes': {
-        'model': tracking_models.ExerciseType,
-        'pk': 'id', 
-        'schema': tracking_schemas.ExerciseType,
-        'create_schema': tracking_schemas.ExerciseTypeCreate,
-        'update_schema': tracking_schemas.ExerciseTypeUpdate,
-    },
-    'consumptionlogs': {
-        'model': tracking_models.ConsumptionLog,
-        'pk': 'id', 
-        'schema': tracking_schemas.ConsumptionLog,
-        'create_schema': tracking_schemas.ConsumptionLogCreate,
-        'update_schema': tracking_schemas.ConsumptionLogUpdate,
-    },
-    'activitylogs': {
-        'model': tracking_models.ActivityLog,
-        'pk': 'id',
-        'schema': tracking_schemas.ActivityLog,
-        'create_schema': tracking_schemas.ActivityLogCreate,
-        'update_schema': tracking_schemas.ActivityLogUpdate,
-    }
-}
 
 @router.get("/tracking-data", response_model=tracking_schemas.AllTrackingData)
 def get_all_tracking_data(
@@ -70,12 +41,7 @@ def get_all_tracking_data(
     }
 
 
-def get_entity_config(entity_name: str):
-    """Hilfsfunktion welche auf die ENTITY_MAP zugreift um die passenden parameter für einen entity type zu finden """
-    config = ENTITY_MAP.get(entity_name)
-    if not config:
-        raise HTTPException(status_code=404, detail="Entity type not found")
-    return config
+
 
 @router.get("/{entity_name}", response_model=List[Any])
 def get_entities(
