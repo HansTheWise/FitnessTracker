@@ -1,6 +1,6 @@
 import { apiFetch, AuthError } from '../services/api.js';
 import { StateService } from '../services/StateService.js';
-import { showToast, showModalError, clearModalError } from '../ui.js';
+import { clearModalError, showModalError, showToast } from '../ui.js';
 
 let _dom, _updateDashboard;
 let choicesInstance = null;
@@ -22,8 +22,8 @@ function getFormFields(entity) {
     switch (entity) {
         case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_per_100g" class="form-control" required></div>`;
         case "exercisetypes": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / Stunde</label><input type="number" id="form-calories_per_hour" class="form-control" required></div>`;
-        case "consumptionlogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
-        case "activitylogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
+        case "consumptionlogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
+        case "activitylogs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
         default: return "";
     }
 }
@@ -68,8 +68,8 @@ async function saveItem(entity, id) {
             StateService.addItem(entity, savedItem);
         }
         
-        const table = document.querySelector(`data-table[entity="${entity}"]`);
-        if (table) table.data = StateService.getEntity(entity);
+        // KORREKTUR: Rufen Sie die populate-Funktion erneut auf, um die Tabelle zu aktualisieren
+        populateTable(entity);
 
         showToast(_dom.toastContainer, `${getEntityLabel(entity)} erfolgreich gespeichert.`);
         _updateDashboard(document.querySelector("#period-selector .active").dataset.period);
@@ -89,8 +89,8 @@ async function deleteItem(entity, id) {
             await apiFetch(`/api/${entity}/${id}`, { method: "DELETE" });
             StateService.deleteItem(entity, id);
             
-            const table = document.querySelector(`data-table[entity="${entity}"]`);
-            if (table) table.data = StateService.getEntity(entity);
+            // KORREKTUR: Rufen Sie die populate-Funktion erneut auf, um die Tabelle zu aktualisieren
+            populateTable(entity);
 
             showToast(_dom.toastContainer, `${label} wurde gelöscht.`);
             _updateDashboard(document.querySelector("#period-selector .active").dataset.period);
@@ -118,7 +118,11 @@ function openModal(entity, id = null) {
 
     if (!id) {
         const dateInput = document.getElementById('form-log_date');
-        if (dateInput) dateInput.valueAsDate = new Date();
+        if (dateInput) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dateInput.value = now.toISOString().slice(0, 16);
+        }
     }
     
     const selectElement = _dom.modal.form.querySelector('select');
@@ -134,8 +138,10 @@ function openModal(entity, id = null) {
                 if (input) {
                     if (input.tagName === 'SELECT' && choicesInstance) {
                         choicesInstance.setChoiceByValue(String(item[key]));
-                    } else if (input.type === "date" && item[key]) {
-                        input.value = new Date(item[key]).toISOString().slice(0, 10);
+                    } else if (input.type === "datetime-local" && item[key]) {
+                        const date = new Date(item[key]);
+                        date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                        input.value = date.toISOString().slice(0, 16);
                     } else {
                         input.value = item[key];
                     }
@@ -148,20 +154,21 @@ function openModal(entity, id = null) {
     _dom.modal.instance.show();
 }
 
+// KORREKTUR: Die populateTable-Funktion wird außerhalb von init deklariert, damit sie wiederverwendbar ist
+function populateTable(entityName) {
+    const table = document.querySelector(`data-table[entity="${entityName}"]`);
+    if (table) {
+        console.log(`fülle tabelle mit "${entityName}"`);
+        table.data = StateService.getEntity(entityName);
+    }
+}
+
 export const EntityManagementComponent = {
     init: (dom, updateDashboardCallback) => {
         _dom = dom;
         _updateDashboard = updateDashboardCallback;
 
-        const populateTable = (entityName) => {
-            const table = document.querySelector(`data-table[entity="${entityName}"]`);
-            if (table) {
-                table.data = StateService.getEntity(entityName);
-            }
-        };
-
         ['foods', 'exercisetypes', 'consumptionlogs', 'activitylogs'].forEach(populateTable);
-        
         document.querySelectorAll('[data-action="open-modal"]').forEach(button => {
             button.addEventListener('click', () => openModal(button.dataset.entity));
         });
@@ -175,4 +182,3 @@ export const EntityManagementComponent = {
         console.log("EntityManagementComponent initialized.");
     }
 };
-

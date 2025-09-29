@@ -87,6 +87,17 @@ export function showToast(toastContainer, message, type = 'success') {
     }, 3000);
 }
 
+export function handleFunModeToggle(e) {
+    const isEnabled = e.target.checked;
+    if (isEnabled) {
+        dom.funMode.gifLeft.classList.add('show');
+        dom.funMode.gifRight.classList.add('show');
+    } else {
+        dom.funMode.gifLeft.classList.remove('show');
+        dom.funMode.gifRight.classList.remove('show');
+    }
+}
+
 /**
  * Zeigt eine Fehlermeldung innerhalb des Modals an.
  * @param {HTMLElement} modalElement Das DOM-Element des Modals.
