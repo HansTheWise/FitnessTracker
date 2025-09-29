@@ -9,12 +9,12 @@ from .api import api_routes
 
 # Import database components and models
 from .database import engine
-from .models import user_models, tracking_models
+from .models import entity_models, user_models
 
 # Create database tables if they don't exist
 # This replaces the db.create_all() from the old Flask app factory.
 user_models.Base.metadata.create_all(bind=engine)
-tracking_models.Base.metadata.create_all(bind=engine)
+entity_models.Base.metadata.create_all(bind=engine)
 
 # Initialize the main FastAPI application
 app = FastAPI(
