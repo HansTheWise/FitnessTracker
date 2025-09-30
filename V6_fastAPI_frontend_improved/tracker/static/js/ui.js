@@ -183,11 +183,11 @@ export function render_chart(chart_canvas, data) {
                         size: 20 // z.B. 12 Pixel für die Fußzeile
                     },
                     callbacks: {
-                        label: function(tooltip_item) {
-                            const dataset_index = tooltip_item.datasetIndex;
-                            const data_index = tooltip_item.dataIndex;
-                            const value = tooltip_item.raw;
-                            let label = tooltip_item.dataset.label || '';
+                        label: function(tooltipItems) {
+                            const dataset_index = tooltipItems.datasetIndex;
+                            const data_index = tooltipItems.dataIndex;
+                            const value = tooltipItems.raw;
+                            let label = tooltipItems.dataset.label || '';
 
                             if (label) {
                                 label += ': ';
@@ -276,7 +276,7 @@ export function trigger_confetti() {
  * @param {object} data Die neuen Dashboard-Daten.
  */
 export function update_dashboard_cards(dom_dashboard_elements, data) {
-    dom_dashboard_elements.total_kcal_in.textContent = `${data.total_kcal_in} kcal`;
+    dom_dashboard_elements.total_kcal_in.textContent = `${data.total_in} kcal`;
     dom_dashboard_elements.total_kcal_out.textContent = `${data.total_out} kcal`;
     const balance = data.balance;
     dom_dashboard_elements.total_kcal_balance.textContent = `${balance >= 0 ? '+' : ''}${balance} kcal`;
