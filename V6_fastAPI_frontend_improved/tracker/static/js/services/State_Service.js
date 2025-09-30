@@ -1,4 +1,4 @@
-import { apiFetch, AuthError } from './api.js';
+import { api_fetch, Auth_Error } from './api.js';
 
 const CACHE_KEY = 'app_data_cache';
 
@@ -22,14 +22,14 @@ const _commit = () => {
  * @private
  * @returns {Promise<object|null>} Die geladenen Daten oder null bei einem Fehler.
  */
-const _fetchAndInitState = async () => {
+const _fetch_and_init_local_state = async () => {
     try {
-        const data = await apiFetch('/api/tracking-data');
+        const data = await api_fetch('/api/tracking-data');
         state = {
             foods: data.foods || [],
-            exercisetypes: data.exercise_types || [],
-            consumptionlogs: data.consumption_logs || [],
-            activitylogs: data.activity_logs || [],
+            exercise_types: data.exercise_types || [],
+            consumption_logs: data.consumption_logs || [],
+            activity_logs: data.activity_logs || [],
             user_profile: data.user_profile || {},
         };
         _commit();
@@ -37,7 +37,7 @@ const _fetchAndInitState = async () => {
         return state;
     } catch (error) {
         console.error("Fatal: Could not fetch initial app data.", error);
-        if (error instanceof AuthError) {
+        if (error instanceof Auth_Error) {
             // Leitet einen Logout ein, wenn die initialen Daten nicht geladen werden können.
             // Die Logout-Funktion wird in app.js definiert und global verfügbar gemacht.
             window.app.logout();
@@ -46,26 +46,26 @@ const _fetchAndInitState = async () => {
     }
 };
 
-export const StateService = {
+export const State_Service = {
     /**
      * Initialisiert den State. Versucht zuerst, ihn aus dem Session-Cache zu laden.
      * Wenn kein Cache vorhanden ist, werden die Daten vom Server geholt.
      * @returns {Promise<object>} Den initialisierten Anwendungsstatus.
      */
-    async init() {
-        const cachedData = sessionStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-            state = JSON.parse(cachedData);
+    async init_state_service() {
+        const cached_data = sessionStorage.getItem(CACHE_KEY);
+        if (cached_data) {
+            state = JSON.parse(cached_data);
             console.log("State initialized from cache.");
             return state;
         }
-        return await _fetchAndInitState();
+        return await _fetch_and_init_local_state();
     },
 
     /**
      * Löscht den lokalen State und Cache. Wird beim Logout aufgerufen.
      */
-    clear() {
+    clear_local_state() {
         state = null;
         sessionStorage.removeItem(CACHE_KEY);
         console.log("State and cache cleared.");
@@ -75,43 +75,43 @@ export const StateService = {
      * Gibt eine Kopie des gesamten aktuellen States zurück.
      * @returns {object|null} Der aktuelle State.
      */
-    getState: () => state ? JSON.parse(JSON.stringify(state)) : null,
+    get_local_state: () => state ? JSON.parse(JSON.stringify(state)) : null,
 
     /**
      * Gibt eine bestimmte Entitätenliste aus dem State zurück.
-     * @param {string} entityName - Der Name der Entität (z.B. 'foods', 'activity_logs').
+     * @param {string} entity_name - Der Name der Entität (z.B. 'foods', 'activity_logs').
      * @returns {Array} Die Liste der Entitäten.
      */
-    getEntity: (entityName) => state ? state[entityName] || [] : [],
+    get_local_entity: (entity_name) => state ? state[entity_name] || [] : [],
     
     /**
      * Gibt das Benutzerprofil aus dem State zurück.
      * @returns {object} Das Benutzerprofil.
      */
-    getProfile: () => state ? state.user_profile || {} : {},
+    get_local_profile: () => state ? state.user_profile || {} : {},
 
     /**
      * Fügt ein neues Element zu einer Entitätenliste im State hinzu und speichert es im Cache.
-     * @param {string} entityName - Der Name der Entität.
+     * @param {string} entity_name - Der Name der Entität.
      * @param {object} item - Das hinzuzufügende Element.
      */
-    addItem: (entityName, item) => {
-        if (state && Array.isArray(state[entityName])) {
-            state[entityName].push(item);
+    add_local_item: (entity_name, item) => {
+        if (state && Array.isArray(state[entity_name])) {
+            state[entity_name].push(item);
             _commit();
         }
     },
 
     /**
      * Aktualisiert ein vorhandenes Element in einer Entitätenliste und speichert es im Cache.
-     * @param {string} entityName - Der Name der Entität.
-     * @param {object} updatedItem - Das aktualisierte Element (muss eine 'id' haben).
+     * @param {string} entity_name - Der Name der Entität.
+     * @param {object} updated_item - Das aktualisierte Element (muss eine 'id' haben).
      */
-    updateItem: (entityName, updatedItem) => {
-        if (state && Array.isArray(state[entityName])) {
-            const index = state[entityName].findIndex(i => i.id === updatedItem.id);
+    update_local_item: (entity_name, updated_item) => {
+        if (state && Array.isArray(state[entity_name])) {
+            const index = state[entity_name].findIndex(i => i.id === updated_item.id);
             if (index !== -1) {
-                state[entityName][index] = updatedItem;
+                state[entity_name][index] = updated_item;
                 _commit();
             }
         }
@@ -119,24 +119,24 @@ export const StateService = {
     
     /**
      * Aktualisiert das Benutzerprofil im State.
-     * @param {object} updatedProfile - Das aktualisierte Profilobjekt.
+     * @param {object} updated_profile - Das aktualisierte Profilobjekt.
      */
-    updateProfile: (updatedProfile) => {
+    update_local_profile: (updated_profile) => {
         if (state) {
-            state.user_profile = updatedProfile;
+            state.user_profile = updated_profile;
             _commit();
         }
     },
 
     /**
      * Entfernt ein Element anhand seiner ID aus einer Entitätenliste und speichert es im Cache.
-     * @param {string} entityName - Der Name der Entität.
-     * @param {number|string} itemId - Die ID des zu entfernenden Elements.
+     * @param {string} entity_name - Der Name der Entität.
+     * @param {number|string} item_id - Die ID des zu entfernenden Elements.
      */
-    deleteItem: (entityName, itemId) => {
-        if (state && Array.isArray(state[entityName])) {
+    delete_local_item: (entity_name, item_id) => {
+        if (state && Array.isArray(state[entity_name])) {
             // Wichtig: IDs können Zahlen oder Strings sein, daher '==' verwenden.
-            state[entityName] = state[entityName].filter(i => i.id != itemId);
+            state[entity_name] = state[entity_name].filter(i => i.id != item_id);
             _commit();
         }
     },

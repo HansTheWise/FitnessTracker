@@ -1,29 +1,29 @@
-import { AuthComponent } from './components/Auth.js';
-import { EntityManagementComponent } from './components/EntityManagement.js';
-import { ProfileComponent } from './components/Profile.js';
-import { DashboardService } from './services/DashboardService.js';
-import { StateService } from './services/StateService.js';
+import { Auth_Component } from './components/Auth.js';
+import { Entity_Management_Component } from './components/Entity_Management.js';
+import { Profile_Component } from './components/Profile.js';
+import { Dashboard_Service } from './services/Dashboard_Service.js';
+import { State_Service } from './services/State_Service.js';
 // KORREKTUR: Alle benötigten UI-Funktionen werden importiert
 import './DataTable.js';
-import { bindDOM, handleFunModeToggle, rebindDynamicElements, renderChart, triggerConfetti, updateDashboardCards } from './ui.js';
+import { bind_DOM, handle_fun_mode_toggle, rebind_dynamic_elements, render_chart, trigger_confetti, update_dashboard_cards } from './ui.js';
 
 // Globaler Namespace für die App
 window.app = {};
 
 // KORREKTUR: dom wird hier einmal korrekt mit der Grundstruktur initialisiert.
-const dom = bindDOM();
+const dom = bind_DOM();
 
 /**
  * Loads an HTML component into a target element.
- * @param {string} componentName - The name of the HTML file (e.g., 'auth').
- * @param {string} targetSelector - The CSS selector of the target container.
+ * @param {string} component_name - The name of the HTML file (e.g., 'auth').
+ * @param {string} target_selector - The CSS selector of the target container.
  */
-async function loadComponent(componentName, targetSelector) {
+async function load_component(component_name, target_selector) {
     try {
         // Annahme: HTML-Dateien liegen im Root-Verzeichnis, nicht in /templates/
-        const response = await fetch(`templates/${componentName}.html`);
-        if (!response.ok) throw new Error(`Component ${componentName} could not be loaded.`);
-        document.querySelector(targetSelector).innerHTML = await response.text();
+        const response = await fetch(`templates/${component_name}.html`);
+        if (!response.ok) throw new Error(`Component ${component_name} could not be loaded.`);
+        document.querySelector(target_selector).innerHTML = await response.text();
     } catch (error) {
         console.error(`Error loading component: ${error}`);
     }
@@ -31,28 +31,28 @@ async function loadComponent(componentName, targetSelector) {
 
 /**
  * Loads the main view (auth or app) and re-binds DOM elements.
- * @param {'auth' | 'app'} viewName - The name of the view to display.
+ * @param {'auth' | 'app'} view_name - The name of the view to display.
  */
-async function showView(viewName) {
-    const component = viewName === 'app' ? 'main' : 'auth';
-    await loadComponent(component, '#main-container');
+async function show_view(view_name) {
+    const component = view_name === 'app' ? 'main' : 'auth';
+    await load_component(component, '#main-container');
     // KORREKTUR: rebindDynamicElements befüllt das bestehende dom-Objekt, anstatt es zu überschreiben.
-    rebindDynamicElements(dom, viewName);
+    rebind_dynamic_elements(dom, view_name);
 }
 
 /**
  * Updates the dashboard UI based on the current state and selected period.
  * @param {string} period - The time period ('day', 'week', 'month', 'year').
  */
-function updateDashboard(period) {
+function update_dashboard(period) {
     if (!dom.dashboard) return;
-    const allData = StateService.getState();
+    const allData = State_Service.get_local_state();
     if (!allData) return;
-    const dashboardData = DashboardService.getDashboardData(period, allData);
+    const dashboard_data = Dashboard_Service.get_dashboard_data(period, allData);
 
     // KORREKTUR: Ruft die ausgelagerten UI-Funktionen auf.
-    updateDashboardCards(dom.dashboard, dashboardData);
-    renderChart(dom.dashboard.chartCanvas, dashboardData);
+    update_dashboard_cards(dom.dashboard, dashboard_data);
+    render_chart(dom.dashboard.chart_canvas, dashboard_data);
 }
 
 /**
@@ -60,50 +60,50 @@ function updateDashboard(period) {
  */
 async function logout() {
     localStorage.removeItem("jwt_token");
-    StateService.clear();
-    await showView('auth');
-    dom.auth.navSection.innerHTML = ''
-    AuthComponent.init(dom, initializeApp);
+    State_Service.clear_local_state();
+    await show_view('auth');
+    dom.auth.nav_section.innerHTML = ''
+    Auth_Component.init(dom, initialize_app);
 }
 window.app.logout = logout; // Expose to global scope for services
 
 /**
  * Initializes the main application view after successful login.
  */
-async function initializeApp() {
-    await showView('app');
+async function initialize_app() {
+    await show_view('app');
 
     try {
-        await StateService.init();
+        await State_Service.init_state_service();
         
         // Setup Logout Button
-        if (dom.auth.navSection) {
-            dom.auth.navSection.innerHTML = '<button id="logout-btn" class="btn btn-outline-danger">Abmelden</button>';
+        if (dom.auth.nav_section) {
+            dom.auth.nav_section.innerHTML = '<button id="logout-btn" class="btn btn-outline-danger">Abmelden</button>';
             document.getElementById('logout-btn').addEventListener('click', logout);
         }
 
         // Initialize components
-        ProfileComponent.init(dom, updateDashboard);
-        EntityManagementComponent.init(dom, updateDashboard);
+        Profile_Component.init(dom, update_dashboard);
+        Entity_Management_Component.init(dom, update_dashboard);
 
         // Initial dashboard render
-        updateDashboard("week");
+        update_dashboard("week");
         
         // Bind dashboard period selector
-        if (dom.dashboard.periodSelector) {
-            dom.dashboard.periodSelector.addEventListener("click", (e) => {
+        if (dom.dashboard.period_selector) {
+            dom.dashboard.period_selector.addEventListener("click", (e) => {
                 if (e.target.tagName === "BUTTON") {
-                    dom.dashboard.periodSelector.querySelector(".active").classList.remove("active");
+                    dom.dashboard.period_selector.querySelector(".active").classList.remove("active");
                     e.target.classList.add("active");
-                    updateDashboard(e.target.dataset.period);
+                    update_dashboard(e.target.dataset.period);
                 }
             });
         }
-        if (dom.dashboard.goalCard) {
-            dom.dashboard.goalCard.addEventListener('click', () => {
+        if (dom.dashboard.goal_card) {
+            dom.dashboard.goal_card.addEventListener('click', () => {
                 // Prüft, ob die Karte die spezielle Klasse hat, die in ui.js gesetzt wird
-                if (dom.dashboard.goalCard.classList.contains('goal-reached-clickable')) {
-                    triggerConfetti();
+                if (dom.dashboard.goal_card.classList.contains('goal-reached-clickable')) {
+                    trigger_confetti();
                 }
             });
         }
@@ -117,12 +117,12 @@ async function initializeApp() {
 /**
  * Checks for an existing JWT and initializes the appropriate view.
  */
-async function checkInitialAuth() {
+async function check_initial_auth() {
     if (localStorage.getItem("jwt_token")) {
-        await initializeApp();
+        await initialize_app();
     } else {
-        await showView('auth');
-        AuthComponent.init(dom, initializeApp); // dom wird übergeben
+        await show_view('auth');
+        Auth_Component.init(dom, initialize_app); // dom wird übergeben
     }
 }
 
@@ -130,15 +130,15 @@ async function checkInitialAuth() {
  * Main startup function.
  */
 async function startup() {
-    await loadComponent('modals', '#modals-container');
+    await load_component('modals', '#modals-container');
     
     // Initialisiere Modal-Instanzen nach dem Laden
     dom.modal.instance = new bootstrap.Modal(document.getElementById("item-modal"));
     dom.modal.confirm = new bootstrap.Modal(document.getElementById("confirm-modal"));
 
-    await checkInitialAuth();
-    if (dom.funMode.toggle) {
-        dom.funMode.toggle.addEventListener('change', handleFunModeToggle);
+    await check_initial_auth();
+    if (dom.fun_mode.toggle) {
+        dom.fun_mode.toggle.addEventListener('change', handle_fun_mode_toggle);
         };
 }
 

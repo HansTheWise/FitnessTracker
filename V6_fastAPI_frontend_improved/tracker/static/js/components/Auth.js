@@ -1,19 +1,19 @@
-import { apiFetch } from '../services/api.js';
-import { showToast } from '../ui.js';
+import { api_fetch } from '../services/api.js';
+import { show_toast } from '../ui.js';
 
-let isLoginMode = true;
+let is_login_mode = true;
 let _dom = {}; // Interner Verweis
-let onLoginSuccess = () => {};
+let on_login_success = () => {};
 
 /**
  * Toggles the view between login and registration modes.
  */
-function toggleAuthMode() {
-    isLoginMode = !isLoginMode;
-    _dom.auth.title.textContent = isLoginMode ? "Anmelden" : "Registrieren";
-    _dom.auth.submitBtn.textContent = isLoginMode ? "Anmelden" : "Registrieren";
-    _dom.auth.toggleLink.textContent = isLoginMode ? "Noch kein Konto? Jetzt registrieren." : "Bereits ein Konto? Jetzt anmelden.";
-    _dom.auth.errorDiv.textContent = "";
+function toggle_auth_mode() {
+    is_login_mode = !is_login_mode;
+    _dom.auth.title.textContent = is_login_mode ? "Anmelden" : "Registrieren";
+    _dom.auth.submit_button.textContent = is_login_mode ? "Anmelden" : "Registrieren";
+    _dom.auth.toggle_link.textContent = is_login_mode ? "Noch kein Konto? Jetzt registrieren." : "Bereits ein Konto? Jetzt anmelden.";
+    _dom.auth.error_div.textContent = "";
     _dom.auth.form.reset();
 }
 
@@ -21,42 +21,42 @@ function toggleAuthMode() {
  * Handles the submission of the authentication form.
  * @param {Event} e - The form submission event.
  */
-async function handleAuthSubmit(e) {
+async function handle_auth_submit(e) {
     e.preventDefault();
-    _dom.auth.errorDiv.textContent = "";
+    _dom.auth.error_div.textContent = "";
     const email = _dom.auth.form.querySelector("#email").value;
     const password = _dom.auth.form.querySelector("#password").value;
-    const endpoint = isLoginMode ? "/api/login" : "/api/register";
+    const endpoint = is_login_mode ? "/api/login" : "/api/register";
 
     try {
-        const data = await apiFetch(endpoint, { method: "POST", body: { email, password } });
-        if (isLoginMode) {
+        const data = await api_fetch(endpoint, { method: "POST", body: { email, password } });
+        if (is_login_mode) {
             localStorage.setItem("jwt_token", data.access_token);
             _dom.auth.form.reset();
-            onLoginSuccess();
+            on_login_success();
         } else {
-            showToast(document.getElementById('toast-container'), "Registrierung erfolgreich! Bitte melden Sie sich an.");
-            toggleAuthMode();
+            show_toast(document.getElementById('toast-container'), "Registrierung erfolgreich! Bitte melden Sie sich an.");
+            toggle_auth_mode();
         }
     } catch (error) {
-        _dom.auth.errorDiv.textContent = error.message;
+        _dom.auth.error_div.textContent = error.message;
     }
 }
 
-export const AuthComponent = {
+export const Auth_Component = {
     /**
      * Initializes the Auth component, binds DOM elements and event listeners.
      * @param {object} dom - The main DOM object from app.js.
-     * @param {Function} loginSuccessCallback - The function to call after a successful login.
+     * @param {Function} login_success_callback - The function to call after a successful login.
      */
-    init: (dom, loginSuccessCallback) => {
+    init: (dom, login_success_callback) => {
         // KORREKTUR: Wir übernehmen das dom-Objekt von app.js.
         _dom = dom;
-        onLoginSuccess = loginSuccessCallback;
+        on_login_success = login_success_callback;
         
         // Die Elemente sind bereits durch rebindDynamicElements in dom.auth verfügbar.
-        if (_dom.auth.toggleLink) _dom.auth.toggleLink.addEventListener("click", toggleAuthMode);
-        if (_dom.auth.form) _dom.auth.form.addEventListener("submit", handleAuthSubmit);
+        if (_dom.auth.toggle_link) _dom.auth.toggle_link.addEventListener("click", toggle_auth_mode);
+        if (_dom.auth.form) _dom.auth.form.addEventListener("submit", handle_auth_submit);
         
         console.log("AuthComponent initialized.");
     }
