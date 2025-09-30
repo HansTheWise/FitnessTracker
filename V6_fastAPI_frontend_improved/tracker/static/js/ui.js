@@ -208,9 +208,6 @@ export function render_chart(chart_canvas, data) {
                             const dataset_index = tooltip_item.datasetIndex;
                             const data_index = tooltip_item.dataIndex;
 
-                            // =================================================================
-                            // NEU: Logik für prozentuale Anzeige der Aufnahme-Details
-                            // =================================================================
                             if (dataset_index === 0 && data.details_in[data_index]?.length > 0) {
                                 const total_kcal_in = calories_in_clean[data_index];
                                 if (total_kcal_in > 0) {
