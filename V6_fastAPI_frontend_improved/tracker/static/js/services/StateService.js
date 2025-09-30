@@ -24,7 +24,6 @@ const _commit = () => {
  */
 const _fetchAndInitState = async () => {
     try {
-        // Dieser Endpunkt muss im Backend erstellt werden (siehe Migrationsplan)
         const data = await apiFetch('/api/tracking-data');
         state = {
             foods: data.foods || [],

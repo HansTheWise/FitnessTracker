@@ -62,7 +62,7 @@ async function logout() {
     localStorage.removeItem("jwt_token");
     StateService.clear();
     await showView('auth');
-    // KORREKTUR: Das dom-Objekt wird jetzt konsistent an AuthComponent übergeben
+    dom.auth.navSection.innerHTML = ''
     AuthComponent.init(dom, initializeApp);
 }
 window.app.logout = logout; // Expose to global scope for services
