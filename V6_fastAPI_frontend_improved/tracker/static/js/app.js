@@ -138,7 +138,7 @@ async function startup() {
 
     await check_initial_auth();
     if (dom.fun_mode.toggle) {
-        dom.fun_mode.toggle.addEventListener('change', handle_fun_mode_toggle);
+        dom.fun_mode.toggle.addEventListener('change', (e) => handle_fun_mode_toggle(e, dom));
         };
 }
 

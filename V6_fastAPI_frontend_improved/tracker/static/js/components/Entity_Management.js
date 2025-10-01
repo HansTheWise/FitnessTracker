@@ -22,8 +22,8 @@ function get_modal_form_fields(entity) {
     switch (entity) {
         case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_per_100g" class="form-control" required></div>`;
         case "exercise_types": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / Stunde</label><input type="number" id="form-calories_per_hour" class="form-control" required></div>`;
-        case "consumption_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
-        case "activity_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime-local" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
+        case "consumption_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
+        case "activity_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="datetime" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
         default: return "";
     }
 }
@@ -121,7 +121,7 @@ function open_modal(entity, id = null) {
         if (date_input) {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            date_input.value = now.toISOString().slice(0, 16);
+            date_input.value = now.toISOString().slice(0, 10);
         }
     }
     
@@ -138,10 +138,10 @@ function open_modal(entity, id = null) {
                 if (input) {
                     if (input.tagName === 'SELECT' && choices_instance) {
                         choices_instance.setChoiceByValue(String(item[key]));
-                    } else if (input.type === "datetime-local" && item[key]) {
+                    } else if (input.type === "datetime" && item[key]) {
                         const date = new Date(item[key]);
                         date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                        input.value = date.toISOString().slice(0, 16);
+                        input.value = date.toISOString().slice(0, 10);
                     } else {
                         input.value = item[key];
                     }

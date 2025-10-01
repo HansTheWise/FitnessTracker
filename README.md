@@ -2,11 +2,12 @@ TODO:
 
 FRONDEND:
 
-1. TODO Gif/Fun Button Switch Fixen
-2. TODO Kcal Goal anpassen so das es für Alle Perioden funktioniert
-3. TODO Modularisierung Abschließen
-4. TODO Bessere organisiation der Funktionen und potenzielle weitere auslagerung
-5. TODO die render_chart funktion aufteilen und übersichtlicher machen
+1. TODO Kcal Goal anpassen so das es für Alle Perioden funktioniert
+2. TODO Modularisierung Abschließen
+3. TODO Bessere organisiation der Funktionen und potenzielle weitere auslagerung
+4. TODO die render_chart funktion aufteilen und übersichtlicher machen
+5. TODO Authentifizierungs bug fixen
+6. TODO API Bug fixen
 
 BACKEND:
 

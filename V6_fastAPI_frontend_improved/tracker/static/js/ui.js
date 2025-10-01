@@ -87,7 +87,7 @@ export function show_toast(toast_container, message, type = 'success') {
     }, 3000);
 }
 
-export function handle_fun_mode_toggle(e) {
+export function handle_fun_mode_toggle(e, dom) {
     const is_enabled = e.target.checked;
     if (is_enabled) {
         dom.fun_mode.fun_mode_gif_left.classList.add('show');
