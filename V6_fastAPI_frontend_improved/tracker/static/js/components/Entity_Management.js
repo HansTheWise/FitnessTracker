@@ -138,7 +138,7 @@ function open_modal(entity, id = null) {
                 if (input) {
                     if (input.tagName === 'SELECT' && choices_instance) {
                         choices_instance.setChoiceByValue(String(item[key]));
-                    } else if (input.type === "datetime" && item[key]) {
+                    } else if (input.type === "date" && item[key]) {
                         const date = new Date(item[key]);
                         date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
                         input.value = date.toISOString().slice(0, 10);
