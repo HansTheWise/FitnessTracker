@@ -1,11 +1,10 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime, date
-from typing import Optional, List, Any, Dict
+from typing import Optional, List, Union
 
 # ==============================================================================
-# Base Schemas
+# Base Schemas (Definieren die Kern-Attribute)
 # ==============================================================================
-
 class FoodBase(BaseModel):
     name: str
     calories_per_100g: int
@@ -13,16 +12,16 @@ class FoodBase(BaseModel):
 class ExerciseTypeBase(BaseModel):
     name: str
     calories_per_hour: int
-
+    
 class ConsumptionLogBase(BaseModel):
-    log_date: datetime
     food_id: int
     amount_g: int
+    log_date: Optional[datetime] = None
 
 class ActivityLogBase(BaseModel):
-    log_date: datetime
     exercise_type_id: int
     duration_min: int
+    log_date: Optional[datetime] = None
 
 class UserProfileBase(BaseModel):
     gender: Optional[str] = None
@@ -32,36 +31,33 @@ class UserProfileBase(BaseModel):
     tracking_start_date: Optional[date] = None
     balance_goal_kcal: Optional[int] = None
 
+# ==============================================================================
+# Schemas für Authentifizierung & Benutzer
+# ==============================================================================
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    user_id: Optional[str] = None
 
 # ==============================================================================
-# Create & Update Schemas
+# Spezifische Create & Update Schemas
 # ==============================================================================
+class FoodCreate(FoodBase): pass
+class ExerciseTypeCreate(ExerciseTypeBase): pass
+class ConsumptionLogCreate(ConsumptionLogBase): pass
+class ActivityLogCreate(ActivityLogBase): pass
+class UserProfileUpdate(UserProfileBase): pass
 
-class FoodCreate(FoodBase):
-    pass
-
-class ExerciseTypeCreate(ExerciseTypeBase):
-    pass
-
-class ConsumptionLogCreate(ConsumptionLogBase):
-    pass
-
-class ActivityLogCreate(ActivityLogBase):
-    pass
-
-class UserProfileUpdate(UserProfileBase):
-    pass
-
-# --- Generic Schemas for API routes ---
-# These act as flexible containers for incoming data in the generic endpoints.
-# The specific validation happens inside the route logic.
-class ItemCreate(BaseModel):
-    model_config = ConfigDict(extra='allow')
-
-class ItemUpdate(BaseModel):
-    model_config = ConfigDict(extra='allow')
-
-# --- Schemas with optional fields for PUT requests ---
 class FoodUpdate(BaseModel):
     name: Optional[str] = None
     calories_per_100g: Optional[int] = None
@@ -80,69 +76,53 @@ class ActivityLogUpdate(BaseModel):
     exercise_type_id: Optional[int] = None
     duration_min: Optional[int] = None
 
+# "State of the Art": Union-Typen für die generischen Endpunkte.
+ItemCreate = Union[FoodCreate, ExerciseTypeCreate, ConsumptionLogCreate, ActivityLogCreate]
+ItemUpdate = Union[FoodUpdate, ExerciseTypeUpdate, ConsumptionLogUpdate, ActivityLogUpdate, UserProfileUpdate]
 
 # ==============================================================================
-# Read Schemas (Response Models)
+# Read Schemas (für API-Antworten)
 # ==============================================================================
-
 class Food(FoodBase):
     id: int
-    user_id: int
     model_config = ConfigDict(from_attributes=True)
 
 class ExerciseType(ExerciseTypeBase):
     id: int
-    user_id: int
     model_config = ConfigDict(from_attributes=True)
 
-class ConsumptionLog(ConsumptionLogBase):
+class ConsumptionLog(BaseModel):
     id: int
-    user_id: int
+    food_id: int
+    amount_g: int
+    log_date: datetime
     food_name: str
     calories: float
     model_config = ConfigDict(from_attributes=True)
 
-class ActivityLog(ActivityLogBase):
+class ActivityLog(BaseModel):
     id: int
-    user_id: int
+    exercise_type_id: int
+    duration_min: int
+    log_date: datetime
     exercise_name: str
     calories: float
     model_config = ConfigDict(from_attributes=True)
 
 class UserProfile(UserProfileBase):
-    # This allows returning an empty object if profile doesn't exist
     model_config = ConfigDict(from_attributes=True)
 
+# Ein einziges, klares Read-Schema für den Benutzer
 class User(BaseModel):
     user_id: int
     email: str
     name: Optional[str]
+    profile: Optional[UserProfile] = None
     model_config = ConfigDict(from_attributes=True)
 
-
-
 class AllTrackingData(BaseModel):
-    """Schema for the one-time data load for the frontend."""
     foods: List[Food]
     exercise_types: List[ExerciseType]
     consumption_logs: List[ConsumptionLog]
     activity_logs: List[ActivityLog]
     user_profile: Optional[UserProfile] = None
-# ==============================================================================
-# Authentication Schemas
-# ==============================================================================
-
-class UserCreate(BaseModel):
-    email: str
-    password: str
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    user_id: Optional[str] = None

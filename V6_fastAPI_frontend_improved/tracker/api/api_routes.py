@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy.exc import IntegrityError
 from typing import List, Any
 
@@ -9,15 +11,22 @@ from ..database import get_db
 
 from ..models import entity_models, user_models
 from ..schemas import entity_schemas
-from .api_entity_config import ENTITY_MAP, get_entity_config
-router = APIRouter()
+from .api_entity_config import get_entity_config
 
+from ..crud import profile_crud
 
+# --- ASYNC DB CHANGES ---
+
+# Gruppieren der Routen mit Prefix und Tags
+router = APIRouter(
+    prefix="/api",
+    tags=["Generic Entities"]
+)
 
 @router.get("/tracking-data", response_model=entity_schemas.AllTrackingData)
-def get_all_tracking_data(
+async def get_all_tracking_data(
     current_user: user_models.User = Depends(security.get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Holt alle relevanten Tracking-Daten für den aktuellen Benutzer in einer einzigen Anfrage.
@@ -25,11 +34,16 @@ def get_all_tracking_data(
     """
     user_id = current_user.user_id
     
-    foods = entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.Food)
-    exercise_types = entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ExerciseType)
-    consumption_logs = entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ConsumptionLog)
-    activity_logs = entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ActivityLog)
-    profile = db.query(user_models.UserProfile).filter(user_models.UserProfile.user_id == user_id).first()
+    # Parallele Ausführung aller Datenbankabfragen = performanter als sequentielle
+    tasks = [
+        entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.Food),
+        entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ExerciseType),
+        entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ConsumptionLog),
+        entity_crud.get_items_by_user(db, user_id=user_id, model_class=entity_models.ActivityLog),
+        profile_crud.get_user_profile(db, user_id=user_id)
+    ]
+    
+    foods, exercise_types, consumption_logs, activity_logs, profile = await asyncio.gather(*tasks)
 
     return {
         "foods": foods,
@@ -39,96 +53,90 @@ def get_all_tracking_data(
         "user_profile": profile if profile else None
     }
 
-
-
-
 @router.get("/{entity_name}", response_model=List[Any])
-def get_entities(
+async def get_entities(
     entity_name: str,
     current_user: user_models.User = Depends(security.get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    holt sich die config und sucht dann mit der get_items_by_user() crud funktion nach dem passenden entitys
-    nimmt die entity items list und validiert diese und passt sie an unser schema für das entity an 
-    und gibt das eine liste von validierten entity schemas zurück
+    Holt sich die config und sucht dann mit der get_items_by_user() crud funktion nach dem passenden entitys.
     """
     config = get_entity_config(entity_name)
-    items = entity_crud.get_items_by_user(db, user_id=current_user.user_id, model_class=config['model'])
+    
+    items = await entity_crud.get_items_by_user(db, user_id=current_user.user_id, model_class=config['model'])
     
     Schema = config['schema']
-    return [Schema.model_validate(item) for item in items]
+    # 'model_validate' ist wie 'from_orm' für neue pydantic version UwU
+    return [Schema.model_validate(item, from_attributes=True) for item in items]
 
 @router.post("/{entity_name}", response_model=Any, status_code=status.HTTP_201_CREATED)
-def create_entity(
+async def create_entity(
     entity_name: str,
+    # Union-Typ: FastAPI überprüft/validiert automatisch Schemas
     item_data: entity_schemas.ItemCreate, 
     current_user: user_models.User = Depends(security.get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    """endpoint to create an item for an entity type."""
-    config = get_entity_config(entity_name)
-    CreateSchema = config['create_schema']
-    
-    # Validate the raw dict with the correct schema
-    try:
-        validated_data = CreateSchema(**item_data.model_dump())
-    except Exception:
-         raise HTTPException(status_code=422, detail="Invalid data for this entity type")
-
-    new_item = entity_crud.create_item(db, user_id=current_user.user_id, item_data=validated_data, model_class=config['model'])
+    """Endpoint zum Erstellen eines Items für einen Entitätstyp."""
+    config = get_entity_config(entity_name)    
+        
+    new_item = await entity_crud.create_item(db, user_id=current_user.user_id, item_data=item_data, model_class=config['model'])
+    # Laden der für Serialisierung benötigten Beziehungen vor schließen der Session
+    if entity_name == 'consumptionlogs':
+        # Für Konsum-Log, lade das zugehörige 'food'-Objekt
+        await db.refresh(new_item, attribute_names=['food'])
+    elif entity_name == 'activitylogs':
+        # Für Aktivitäts-Log, lade das zugehörige 'exercise_type'-Objekt
+        await db.refresh(new_item, attribute_names=['exercise_type'])
     Schema = config['schema']
-    return Schema.model_validate(new_item)
+    return Schema.model_validate(new_item, from_attributes=True)
 
 
 @router.put("/{entity_name}/{item_id}", response_model=Any)
-def update_entity(
+async def update_entity(
     entity_name: str,
     item_id: int,
-    item_data: entity_schemas.ItemUpdate,
+    item_data: entity_schemas.ItemUpdate, # Nutze Union für automatische Validierung
     current_user: user_models.User = Depends(security.get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    """endpoint to update an item."""
+    """Endpoint zum Aktualisieren eines Items."""
     config = get_entity_config(entity_name)
-    UpdateSchema = config['update_schema']
     
-    db_item = entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
+    db_item = await entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
-
-    try:
-        validated_data = UpdateSchema(**item_data.model_dump(exclude_unset=True))
-    except Exception:
-        raise HTTPException(status_code=422, detail="Invalid data for this entity type")
-
-    updated_item = entity_crud.update_item(db, db_item=db_item, item_data=validated_data)
+    
+    updated_item = await entity_crud.update_item(db, db_item=db_item, item_data=item_data)
+    
+    # wie beim Erstellen
+    if entity_name == 'consumptionlogs':
+        await db.refresh(updated_item, attribute_names=['food'])
+    elif entity_name == 'activitylogs':
+        await db.refresh(updated_item, attribute_names=['exercise_type'])
+    
     Schema = config['schema']
-    return Schema.model_validate(updated_item)
+    return Schema.model_validate(updated_item, from_attributes=True)
 
 
 @router.delete("/{entity_name}/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_entity(
+async def delete_entity(
     entity_name: str,
     item_id: int,
     current_user: user_models.User = Depends(security.get_current_user),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    """endpoint to delete an item."""
+    """Endpoint zum Löschen eines Items."""
     config = get_entity_config(entity_name)
-    db_item = entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
+    
+    db_item = await entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
 
     try:
-        entity_crud.delete_item(db, db_item=db_item)
+        await entity_crud.delete_item(db, db_item=db_item)
     except IntegrityError:
         raise HTTPException(status_code=409, detail="Cannot delete this as other entries depend on it.")
     
     return None
-
-
-
-
-
-

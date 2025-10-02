@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, TIMESTAMP
+from sqlalchemy import ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from ..database import Base
+from .base_model import Base
+
 
 class Food(Base):
     __tablename__ = 'foods'

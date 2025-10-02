@@ -1,11 +1,12 @@
+import asyncio
 import jwt
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
-from werkzeug.security import check_password_hash
+from sqlalchemy.ext.asyncio import AsyncSession
+from .crud import user_crud
 
 
 from .config import settings
@@ -44,27 +45,31 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 # --- Dependency for getting the current user ---
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> user_models.User:
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> user_models.User:
     """
-    Dependency to get the current user from a JWT token.
-    This will be used to protect endpoints.
+    Abhängigkeit, um den aktuellen Benutzer aus einem JWT-Token zu holen.
+    Diese wird verwendet, um Endpunkte zu schützen.
     """
-    #das wird losgesendet wenn ou
+    # das wird losgesendet wenn ou
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        #payload ist ein python dict
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        # "State of the Art": Führe die CPU-intensive Dekodierung in einem Thread aus.
+        payload = await asyncio.to_thread(
+            jwt.decode, token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-    except jwt.PyJWTError:
+    except jwt.PyJWTError: # Fängt alle JWT-bezogenen Fehler ab
         raise credentials_exception
     
-    user = db.query(user_models.User).filter(user_models.User.user_id == int(user_id)).first()
+    # Delegiert Datenbankabfrage an asynchrone CRUD-Schicht
+    user = await user_crud.get_user_by_id(db, user_id=int(user_id))
+    
     if user is None:
         raise credentials_exception
     return user

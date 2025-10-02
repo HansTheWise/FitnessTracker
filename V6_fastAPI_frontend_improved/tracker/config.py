@@ -1,12 +1,11 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
 
 class Settings(BaseSettings):
     """
     Verwaltet die Anwendungseinstellungen mit Pydantic.
     Liest Umgebungsvariablen automatisch aus einer .env-Datei.
     """
-    SQLALCHEMY_DATABASE_URI: str = "sqlite:///./default.db"
+    SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///./database.db"
 
     # --- JWT Authentifizierungs-Einstellungen ---
     # Der geheime Schlüssel zum Signieren von JWTs. Sollte lang und zufällig sein.

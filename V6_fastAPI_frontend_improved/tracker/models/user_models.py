@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import Optional
 from datetime import date
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from tracker.database import Base
+from .base_model import Base
+
 
 class User(Base):
     __tablename__ = 'users'
