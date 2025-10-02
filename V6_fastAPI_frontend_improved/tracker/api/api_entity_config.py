@@ -10,21 +10,21 @@ ENTITY_MAP = {
         'create_schema': entity_schemas.FoodCreate,
         'update_schema': entity_schemas.FoodUpdate,
     },
-    'exercisetypes': {
+    'exercise_types': {
         'model': entity_models.ExerciseType,
         'pk': 'id', 
         'schema': entity_schemas.ExerciseType,
         'create_schema': entity_schemas.ExerciseTypeCreate,
         'update_schema': entity_schemas.ExerciseTypeUpdate,
     },
-    'consumptionlogs': {
+    'consumption_logs': {
         'model': entity_models.ConsumptionLog,
         'pk': 'id', 
         'schema': entity_schemas.ConsumptionLog,
         'create_schema': entity_schemas.ConsumptionLogCreate,
         'update_schema': entity_schemas.ConsumptionLogUpdate,
     },
-    'activitylogs': {
+    'activity_logs': {
         'model': entity_models.ActivityLog,
         'pk': 'id',
         'schema': entity_schemas.ActivityLog,

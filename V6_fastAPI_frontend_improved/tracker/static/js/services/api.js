@@ -3,10 +3,10 @@ const API_BASE_URL = window.location.origin;
 /**
  * Custom error class to specifically handle authentication errors.
  */
-export class AuthError extends Error {
+export class Auth_Error extends Error {
     constructor(message) {
         super(message);
-        this.name = "AuthError";
+        this.name = "Auth Error";
     }
 }
 
@@ -16,7 +16,7 @@ export class AuthError extends Error {
  * @param {object} options - Standard fetch options (method, body, etc.).
  * @returns {Promise<any>} A promise that resolves with the JSON data from the API response.
  */
-export async function apiFetch(endpoint, options = {}) {
+export async function api_fetch(endpoint, options = {}) {
     const token = localStorage.getItem("jwt_token");
     const headers = { "Content-Type": "application/json", ...options.headers };
 
@@ -32,12 +32,12 @@ export async function apiFetch(endpoint, options = {}) {
 
     if (response.status === 401) {
         // This will be caught by our application logic to trigger a logout.
-        throw new AuthError("Session expired. Please log in again.");
+        throw new Auth_Error("Session expired. Please log in again.");
     }
 
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ msg: "An unknown API error occurred." }));
-        throw new Error(errorData.msg || "An API error has occurred.");
+        const error_data = await response.json().catch(() => ({ msg: "An unknown API error occurred." }));
+        throw new Error(error_data.msg || "An API error has occurred.");
     }
     
     // Handle successful responses with no content (e.g., DELETE 204)

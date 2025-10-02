@@ -73,10 +73,10 @@
                               <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h3>Energiebilanz</h3>
                                         <div class="btn-group" role="group" id="period-selector">
+                                                  <button type="button" class="btn btn-outline-primary" 
+                                                            data-period="day">Tag</button>
                                                   <button type="button" class="btn btn-outline-primary active"
                                                             data-period="week">Woche</button>
-                                                  <button type="button" class="btn btn-outline-primary"
-                                                            data-period="day">Tag</button>
                                                   <button type="button" class="btn btn-outline-primary"
                                                             data-period="month">Monat</button>
                                                   <button type="button" class="btn btn-outline-primary"
@@ -123,34 +123,34 @@
                                                             class="bi bi-plus-lg"></i> Hinzufügen</button>
                               </div>
                               <data-table entity="foods"
-                                        columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_100g", "label": "Kalorien / 100g"}]'></data-table>
+                                        columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_100g", "label": "Kalorien / 100g"}, {"key": "protein_per_100g", "label": "Protein / 100g"}, {"key": "carbohydrates_per_100g", "label": "Kohlenhydrate / 100g"}]'></data-table>
                     </div>
                     <div class="tab-pane fade" id="exercises-pane" role="tabpanel" aria-labelledby="exercises-tab">
                               <div class="d-flex justify-content-between align-items-center my-3">
                                         <h3>Ihre Bewegungsformen</h3><button class="btn btn-success"
-                                                  data-action="open-modal" data-entity="exercisetypes"><i
+                                                  data-action="open-modal" data-entity="exercise_types"><i
                                                             class="bi bi-plus-lg"></i> Hinzufügen</button>
                               </div>
-                              <data-table entity="exercisetypes"
+                              <data-table entity="exercise_types"
                                         columns='[{"key": "name", "label": "Name"}, {"key": "calories_per_hour", "label": "Kalorien / Stunde"}]'></data-table>
                     </div>
                     <div class="tab-pane fade" id="consumptions-pane" role="tabpanel"
                               aria-labelledby="consumptions-tab">
                               <div class="d-flex justify-content-between align-items-center my-3">
                                         <h3>Ihr Konsum</h3><button class="btn btn-success" data-action="open-modal"
-                                                  data-entity="consumptionlogs"><i class="bi bi-plus-lg"></i>
+                                                  data-entity="consumption_logs"><i class="bi bi-plus-lg"></i>
                                                   Protokollieren</button>
                               </div>
-                              <data-table entity="consumptionlogs"
-                                        columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "food_name", "label": "Nahrungsmittel"}, {"key": "amount_g", "label": "Menge (g)"}]'></data-table>
+                              <data-table entity="consumption_logs"
+                                        columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "food_name", "label": "Nahrungsmittel"}, {"key": "amount_g", "label": "Menge (g)"},  {"key": "protein_consumption", "label": "Protein (g)"}, {"key": "carbohydrates_consumption", "label": "Kohlenhydrate (g)"}]'></data-table>
                     </div>
                     <div class="tab-pane fade" id="activities-pane" role="tabpanel" aria-labelledby="activities-tab">
                               <div class="d-flex justify-content-between align-items-center my-3">
                                         <h3>Ihre Aktivitäten</h3><button class="btn btn-success"
-                                                  data-action="open-modal" data-entity="activitylogs"><i
+                                                  data-action="open-modal" data-entity="activity_logs"><i
                                                             class="bi bi-plus-lg"></i> Protokollieren</button>
                               </div>
-                              <data-table entity="activitylogs"
+                              <data-table entity="activity_logs"
                                         columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "exercise_name", "label": "Bewegung"}, {"key": "duration_min", "label": "Dauer (min)"}]'></data-table>
                     </div>
           </div>

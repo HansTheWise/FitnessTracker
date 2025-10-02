@@ -1,14 +1,14 @@
-let chartInstance = null; // Private Variable für die Chart-Instanz
+let chart_instance = null; // Private Variable für die Chart-Instanz
 
 /**
  * Führt DOM-Caching durch und gibt ein Objekt mit Referenzen auf alle wichtigen UI-Elemente zurück.
  * @returns {object} Ein Objekt, das die DOM-Elemente enthält.
  */
-export function bindDOM() {
+export function bind_DOM() {
     return {
         views: { auth: null, app: null }, 
         auth: {
-            navSection: document.getElementById("auth-nav-section"),
+            nav_section: document.getElementById("auth-nav-section"),
         },
         dashboard: {},
         profile: {},
@@ -16,70 +16,70 @@ export function bindDOM() {
             instance: null, 
             confirm: null,
         },
-        toastContainer: document.getElementById('toast-container'),
-        funMode: {
+        toast_container: document.getElementById('toast-container'),
+        fun_mode: {
             toggle: document.getElementById('fun-mode-toggle'),
-            gifLeft: document.getElementById('fun-gif-left'),
-            gifRight: document.getElementById('fun-gif-right'),
+            fun_mode_gif_left: document.getElementById('fun-gif-left'),
+            fun_mode_gif_right: document.getElementById('fun-gif-right'),
         },
     };
 }
 
 /**
  * Binds the DOM elements for a dynamically loaded view.
- * @param {object} domObject - The global dom cache object to update.
- * @param {'auth' | 'app'} viewName - The name of the view that was just loaded.
+ * @param {object} dom_object - The global dom cache object to update.
+ * @param {'auth' | 'app'} view_name - The name of the view that was just loaded.
  */
-export function rebindDynamicElements(domObject, viewName) {
-    if (viewName === 'auth') {
-        domObject.views.auth = document.getElementById("auth-view");
-        domObject.auth.form = document.getElementById("auth-form");
-        domObject.auth.title = document.getElementById("auth-title");
-        domObject.auth.submitBtn = document.getElementById("auth-submit-btn");
-        domObject.auth.toggleLink = document.getElementById("toggle-auth-mode");
-        domObject.auth.errorDiv = document.getElementById("auth-error");
-    } else if (viewName === 'app') {
-        domObject.views.app = document.getElementById("app-view");
+export function rebind_dynamic_elements(dom_object, view_name) {
+    if (view_name === 'auth') {
+        dom_object.views.auth = document.getElementById("auth-view");
+        dom_object.auth.form = document.getElementById("auth-form");
+        dom_object.auth.title = document.getElementById("auth-title");
+        dom_object.auth.submit_button = document.getElementById("auth-submit-btn");
+        dom_object.auth.toggle_link = document.getElementById("toggle-auth-mode");
+        dom_object.auth.error_div = document.getElementById("auth-error");
+    } else if (view_name === 'app') {
+        dom_object.views.app = document.getElementById("app-view");
         // Dashboard
-        domObject.dashboard.periodSelector = document.getElementById("period-selector");
-        domObject.dashboard.totalIn = document.getElementById("total-in");
-        domObject.dashboard.totalOut = document.getElementById("total-out");
-        domObject.dashboard.totalBalance = document.getElementById("total-balance");
-        domObject.dashboard.balanceTitle = document.getElementById("balance-title");
-        domObject.dashboard.balanceGoalNumber = document.getElementById("balance-goal-number");
-        domObject.dashboard.balanceGoalTitle = document.getElementById("balance-goal-title");
-        domObject.dashboard.chartCanvas = document.getElementById("energy-chart");
-        domObject.dashboard.goalCard = document.getElementById("goal-card");
+        dom_object.dashboard.period_selector = document.getElementById("period-selector");
+        dom_object.dashboard.total_kcal_in = document.getElementById("total-in");
+        dom_object.dashboard.total_kcal_out = document.getElementById("total-out");
+        dom_object.dashboard.total_kcal_balance = document.getElementById("total-balance");
+        dom_object.dashboard.balance_title = document.getElementById("balance-title");
+        dom_object.dashboard.balance_goal_number = document.getElementById("balance-goal-number");
+        dom_object.dashboard.balance_goal_title = document.getElementById("balance-goal-title");
+        dom_object.dashboard.chart_canvas = document.getElementById("energy-chart");
+        dom_object.dashboard.goal_card = document.getElementById("goal-card");
         // Profile
-        domObject.profile.form = document.getElementById("profile-form");
-        domObject.profile.gender = document.getElementById("profile-gender");
-        domObject.profile.age = document.getElementById("profile-age");
-        domObject.profile.height = document.getElementById("profile-height");
-        domObject.profile.weight = document.getElementById("profile-weight");
-        domObject.profile.startDate = document.getElementById("profile-start-date");
-        domObject.profile.balanceGoal = document.getElementById("profile-balance-goal");
+        dom_object.profile.form = document.getElementById("profile-form");
+        dom_object.profile.gender = document.getElementById("profile-gender");
+        dom_object.profile.age = document.getElementById("profile-age");
+        dom_object.profile.height = document.getElementById("profile-height");
+        dom_object.profile.weight = document.getElementById("profile-weight");
+        dom_object.profile.start_date = document.getElementById("profile-start-date");
+        dom_object.profile.balance_goal = document.getElementById("profile-balance-goal");
         // Modals (elements inside the modals, which are now guaranteed to be in the DOM)
-        domObject.modal.element = document.getElementById("item-modal");
-        domObject.modal.form = document.getElementById("modal-form");
-        domObject.modal.title = document.getElementById("modal-title");
-        domObject.modal.saveBtn = document.getElementById("modal-save-btn");
-        domObject.modal.confirmMessage = document.getElementById("confirm-message");
-        domObject.modal.confirmBtn = document.getElementById("confirm-btn");
+        dom_object.modal.element = document.getElementById("item-modal");
+        dom_object.modal.form = document.getElementById("modal-form");
+        dom_object.modal.title = document.getElementById("modal-title");
+        dom_object.modal.save_button = document.getElementById("modal-save-btn");
+        dom_object.modal.confirm_message = document.getElementById("confirm-message");
+        dom_object.modal.confirm_button = document.getElementById("confirm-btn");
     }
 }
 
 
 /**
  * Zeigt eine Toast-Benachrichtigung an.
- * @param {HTMLElement} toastContainer Das DOM-Element des Toast-Containers.
+ * @param {HTMLElement} toast_container Das DOM-Element des Toast-Containers.
  * @param {string} message Die anzuzeigende Nachricht.
  * @param {string} type Der Typ des Toasts ('success' oder 'danger').
  */
-export function showToast(toastContainer, message, type = 'success') {
+export function show_toast(toast_container, message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast-notification ${type}`;
     toast.textContent = message;
-    toastContainer.appendChild(toast);
+    toast_container.appendChild(toast);
     setTimeout(() => toast.classList.add('show'), 100);
     setTimeout(() => {
         toast.classList.remove('show');
@@ -87,24 +87,24 @@ export function showToast(toastContainer, message, type = 'success') {
     }, 3000);
 }
 
-export function handleFunModeToggle(e) {
-    const isEnabled = e.target.checked;
-    if (isEnabled) {
-        dom.funMode.gifLeft.classList.add('show');
-        dom.funMode.gifRight.classList.add('show');
+export function handle_fun_mode_toggle(e, dom) {
+    const is_enabled = e.target.checked;
+    if (is_enabled) {
+        dom.fun_mode.fun_mode_gif_left.classList.add('show');
+        dom.fun_mode.fun_mode_gif_right.classList.add('show');
     } else {
-        dom.funMode.gifLeft.classList.remove('show');
-        dom.funMode.gifRight.classList.remove('show');
+        dom.fun_mode.fun_mode_gif_left.classList.remove('show');
+        dom.fun_mode.fun_mode_gif_right.classList.remove('show');
     }
 }
 
 /**
  * Zeigt eine Fehlermeldung innerhalb des Modals an.
- * @param {HTMLElement} modalElement Das DOM-Element des Modals.
+ * @param {HTMLElement} modal_element Das DOM-Element des Modals.
  * @param {string} message Die Fehlermeldung.
  */
-export function showModalError(modalElement, message) {
-    const errorDisplay = modalElement.querySelector('.modal-error-display');
+export function show_modal_error(modal_element, message) {
+    const errorDisplay = modal_element.querySelector('.modal-error-display');
     if (errorDisplay) {
         errorDisplay.textContent = message;
         errorDisplay.style.display = 'block';
@@ -113,10 +113,10 @@ export function showModalError(modalElement, message) {
 
 /**
  * Löscht die Fehlermeldung im Modal.
- * @param {HTMLElement} modalElement Das DOM-Element des Modals.
+ * @param {HTMLElement} modal_element Das DOM-Element des Modals.
  */
-export function clearModalError(modalElement) {
-    const errorDisplay = modalElement.querySelector('.modal-error-display');
+export function clear_modal_error(modal_element) {
+    const errorDisplay = modal_element.querySelector('.modal-error-display');
     if (errorDisplay) {
         errorDisplay.textContent = '';
         errorDisplay.style.display = 'none';
@@ -125,41 +125,41 @@ export function clearModalError(modalElement) {
 
 /**
  * Rendert das Energiebilanz-Diagramm mit detaillierten, prozentualen Tooltips.
- * @param {HTMLCanvasElement} chartCanvas Das Canvas-Element für das Diagramm.
+ * @param {HTMLCanvasElement} chart_canvas Das Canvas-Element für das Diagramm.
  * @param {object} data Die Daten für das Diagramm, inklusive 'details_in' und 'details_out'.
  */
-export function renderChart(chartCanvas, data) {
+export function render_chart(chart_canvas, data) {
     const sanitizeArray = (arr) => {
         if (!Array.isArray(arr)) return [];
         return arr.map(value => (typeof value === 'number' && isFinite(value) ? value : 0));
     };
 
-    const caloriesInClean = sanitizeArray(data.calories_in);
-    const caloriesOutBmrClean = sanitizeArray(data.calories_out_bmr);
-    const caloriesOutActiveClean = sanitizeArray(data.calories_out_active);
+    const calories_in_clean = sanitizeArray(data.calories_in);
+    const calories_out_BMR_clean = sanitizeArray(data.calories_out_bmr);
+    const calories_out_active_clean = sanitizeArray(data.calories_out_active);
 
-    const ctx = chartCanvas.getContext("2d");
-    if (chartInstance) chartInstance.destroy();
+    const ctx = chart_canvas.getContext("2d");
+    if (chart_instance) chart_instance.destroy();
 
-    chartInstance = new Chart(ctx, {
+    chart_instance = new Chart(ctx, {
         type: "bar",
         data: {
             labels: data.labels,
             datasets: [
                 {
                     label: "Aufgenommen",
-                    data: caloriesInClean,
+                    data: calories_in_clean,
                     backgroundColor: "rgba(32, 131, 55, 0.7)",
                 },
                 {
                     label: "Grundverbrauch",
-                    data: caloriesOutBmrClean,
+                    data: calories_out_BMR_clean,
                     backgroundColor: "rgba(148, 36, 36, 0.65)",
                     stack: 'Verbrauch',
                 },
                 {
                     label: "Aktiv verbraucht",
-                    data: caloriesOutActiveClean,
+                    data: calories_out_active_clean,
                     backgroundColor: "rgba(164, 52, 42, 0.69)",
                     stack: 'Verbrauch',
                 }
@@ -174,78 +174,75 @@ export function renderChart(chartCanvas, data) {
             plugins: {
                 tooltip: {
                      titleFont: {
-                        size: 20 // z.B. 16 Pixel für den Titel
+                        size: 20
                     },
                     bodyFont: {
-                        size: 20 // z.B. 14 Pixel für den Hauptteil
+                        size: 20 
                     },
                     footerFont: {
-                        size: 20 // z.B. 12 Pixel für die Fußzeile
+                        size: 20 
                     },
                     callbacks: {
-                        label: function(tooltipItem) {
-                            const datasetIndex = tooltipItem.datasetIndex;
-                            const dataIndex = tooltipItem.dataIndex;
-                            const value = tooltipItem.raw;
-                            let label = tooltipItem.dataset.label || '';
+                        label: function(tooltipItems) {
+                            const dataset_index = tooltipItems.datasetIndex;
+                            const data_index = tooltipItems.dataIndex;
+                            const value = tooltipItems.raw;
+                            let label = tooltipItems.dataset.label || '';
 
                             if (label) {
                                 label += ': ';
                             }
                             label += `${value} kcal`;
 
-                            if (datasetIndex === 1 || datasetIndex === 2) {
-                                const totalOut = caloriesOutBmrClean[dataIndex] + caloriesOutActiveClean[dataIndex];
-                                if (totalOut > 0) {
-                                    const percentage = (value / totalOut * 100).toFixed(1);
+                            if (dataset_index === 1 || dataset_index === 2) {
+                                const total_kcal_out = calories_out_BMR_clean[data_index] + calories_out_active_clean[data_index];
+                                if (total_kcal_out > 0) {
+                                    const percentage = (value / total_kcal_out * 100).toFixed(1);
                                     label += ` (${percentage}%)`;
                                 }
                             }
                             return label;
                         },
                         footer: function(tooltipItems) {
-                            const tooltipItem = tooltipItems[0];
-                            const datasetIndex = tooltipItem.datasetIndex;
-                            const dataIndex = tooltipItem.dataIndex;
+                            const tooltip_item = tooltipItems[0];
+                            const dataset_index = tooltip_item.datasetIndex;
+                            const data_index = tooltip_item.dataIndex;
 
-                            // =================================================================
-                            // NEU: Logik für prozentuale Anzeige der Aufnahme-Details
-                            // =================================================================
-                            if (datasetIndex === 0 && data.details_in[dataIndex]?.length > 0) {
-                                const totalIn = caloriesInClean[dataIndex];
-                                if (totalIn > 0) {
+                            if (dataset_index === 0 && data.details_in[data_index]?.length > 0) {
+                                const total_kcal_in = calories_in_clean[data_index];
+                                if (total_kcal_in > 0) {
                                     // Transformiere jeden Detail-Eintrag
-                                    return data.details_in[dataIndex].map(detail => {
+                                    return data.details_in[data_index].map(detail => {
                                         // Extrahiere die Kalorienzahl aus dem String (z.B. "Apfel: 95 kcal")
                                         const match = detail.match(/: (\d+(\.\d+)?)/);
                                         if (match && match[1]) {
                                             const value = parseFloat(match[1]);
-                                            const percentage = (value / totalIn * 100).toFixed(1);
+                                            const percentage = (value / total_kcal_in * 100).toFixed(1);
                                             return `${detail} (${percentage}%)`;
                                         }
                                         return detail; // Fallback, falls keine Zahl gefunden wird
                                     });
                                 }
-                                return data.details_in[dataIndex];
+                                return data.details_in[data_index];
                             }
                             // =================================================================
 
-                            if (datasetIndex === 2 && data.details_out[dataIndex]?.length > 0) {
-                                const totalActiveOut = caloriesOutActiveClean[dataIndex];
-                                if (totalActiveOut > 0) {
+                            if (dataset_index === 2 && data.details_out[data_index]?.length > 0) {
+                                const total_active_out = calories_out_active_clean[data_index];
+                                if (total_active_out > 0) {
                                     // Transformiere jeden Detail-Eintrag, um den Prozentanteil hinzuzufügen
-                                    return data.details_out[dataIndex].map(detail => {
+                                    return data.details_out[data_index].map(detail => {
                                         // Extrahiere die Kalorienzahl aus dem String (z.B. "Joggen: 350 kcal")
                                         const match = detail.match(/: (\d+(\.\d+)?)/);
                                         if (match && match[1]) {
                                             const value = parseFloat(match[1]);
-                                            const percentage = (value / totalActiveOut * 100).toFixed(1);
+                                            const percentage = (value / total_active_out * 100).toFixed(1);
                                             return `${detail} (${percentage}%)`;
                                         }
                                         return detail; // Fallback, falls keine Zahl gefunden wird
                                     });
                                 }
-                                return data.details_out[dataIndex];
+                                return data.details_out[data_index];
                             }
 
                             return [];
@@ -257,12 +254,12 @@ export function renderChart(chartCanvas, data) {
     });
 }
 
-let goalAlreadyReached = false;
+let goal_already_reached = false;
 
 /**
  * Löst einen Konfetti-Effekt aus.
  */
-export function triggerConfetti() {
+export function trigger_confetti() {
     confetti({
         particleCount: 150,
         spread: 90,
@@ -272,53 +269,54 @@ export function triggerConfetti() {
 
 /**
  * Aktualisiert die Dashboard-Karten mit den neuen Daten.
- * @param {object} domDashboardElements Ein Objekt mit den Referenzen auf die Dashboard-Elemente.
+ * @param {object} dom_dashboard_elements Ein Objekt mit den Referenzen auf die Dashboard-Elemente.
  * @param {object} data Die neuen Dashboard-Daten.
  */
-export function updateDashboardCards(domDashboardElements, data) {
-    domDashboardElements.totalIn.textContent = `${data.total_in} kcal`;
-    domDashboardElements.totalOut.textContent = `${data.total_out} kcal`;
+export function update_dashboard_cards(dom_dashboard_elements, data) {
+    dom_dashboard_elements.total_kcal_in.textContent = `${data.total_in} kcal`;
+    dom_dashboard_elements.total_kcal_out.textContent = `${data.total_out} kcal`;
     const balance = data.balance;
-    domDashboardElements.totalBalance.textContent = `${balance >= 0 ? '+' : ''}${balance} kcal`;
+    dom_dashboard_elements.total_kcal_balance.textContent = `${balance >= 0 ? '+' : ''}${balance} kcal`;
 
-    domDashboardElements.balanceTitle.className = balance >= 0 ? 'text-success' : 'text-danger';
-    domDashboardElements.totalBalance.className = `fs-2 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'}`;
+    dom_dashboard_elements.balance_title.className = balance >= 0 ? 'text-success' : 'text-danger';
+    dom_dashboard_elements.total_kcal_balance.className = `fs-2 mb-0 ${balance >= 0 ? 'text-success' : 'text-danger'}`;
 
     if (data.balance_goal !== null && data.balance_goal !== undefined) {
         const goal = data.balance_goal;
-        let isGoalReached = false;
+        let is_goal_reached = false;
 
-        if (goal <= 0) { isGoalReached = balance <= goal; } 
-        else { isGoalReached = balance >= goal; }
+        if (goal <= 0) { is_goal_reached = balance <= goal; } 
+        else { is_goal_reached = balance >= goal; }
 
-        if (isGoalReached) {
+        if (is_goal_reached) {
             const surplus = Math.abs(balance - goal);
-            domDashboardElements.balanceGoalTitle.textContent = '🎉 Super!';
-            domDashboardElements.balanceGoalNumber.textContent = `${surplus} kcal über Ziel`;
+            dom_dashboard_elements.balance_goal_title.textContent = '🎉 Super!';
+            dom_dashboard_elements.balance_goal_number.textContent = `${surplus} kcal über Ziel`;
             // NEU: Fügt eine Klasse hinzu, um die Karte für den Klick vorzubereiten
-            domDashboardElements.goalCard.classList.add('goal-reached-clickable');
+            dom_dashboard_elements.goal_card.classList.add('goal-reached-clickable');
         } else {
-            domDashboardElements.balanceGoalTitle.textContent = 'Verbleibend z. Ziel';
-            const remainingGoal = goal - balance;
-            domDashboardElements.balanceGoalNumber.textContent = `${remainingGoal >= 0 ? '+' : ''}${remainingGoal} kcal`;
+            
+            const remaining_goal = goal - balance;
+            dom_dashboard_elements.balance_goal_title.textContent = `${remaining_goal >= 0 ? 'Esse noch' : 'Verbrenn noch'}`;
+            dom_dashboard_elements.balance_goal_number.textContent = `${remaining_goal >= 0 ? `${remaining_goal} kcal! 😋` : `${remaining_goal} kcal! 🔥`}`;
             // NEU: Entfernt die Klasse, falls das Ziel nicht mehr erreicht ist
-            domDashboardElements.goalCard.classList.remove('goal-reached-clickable');
+            dom_dashboard_elements.goal_card.classList.remove('goal-reached-clickable');
         }
 
-        const titleClasses = domDashboardElements.balanceGoalTitle.classList;
-        const numberClasses = domDashboardElements.balanceGoalNumber.classList;
+        const titleClasses = dom_dashboard_elements.balance_goal_title.classList;
+        const numberClasses = dom_dashboard_elements.balance_goal_number.classList;
         titleClasses.remove('text-success', 'text-danger', 'text-warning');
         numberClasses.remove('text-success', 'text-danger', 'text-warning');
-        titleClasses.add(isGoalReached ? 'text-success' : 'text-danger');
-        numberClasses.add(isGoalReached ? 'text-success' : 'text-danger');
+        titleClasses.add(is_goal_reached ? 'text-success' : 'text-danger');
+        numberClasses.add(is_goal_reached ? 'text-success' : 'text-danger');
 
     } else {
-        domDashboardElements.balanceGoalNumber.textContent = '---';
-        domDashboardElements.balanceGoalTitle.textContent = 'Verbleibend z. Ziel';
-        domDashboardElements.balanceGoalTitle.classList.remove('text-success', 'text-danger');
-        domDashboardElements.balanceGoalTitle.classList.add('text-warning');
+        dom_dashboard_elements.balance_goal_number.textContent = '---';
+        dom_dashboard_elements.balance_goal_title.textContent = 'Verbleibend z. Ziel';
+        dom_dashboard_elements.balance_goal_title.classList.remove('text-success', 'text-danger');
+        dom_dashboard_elements.balance_goal_title.classList.add('text-warning');
         // NEU: Stellt sicher, dass die Klasse auch hier entfernt wird
-        domDashboardElements.goalCard.classList.remove('goal-reached-clickable');
+        dom_dashboard_elements.goal_card.classList.remove('goal-reached-clickable');
         
     }
 }
