@@ -174,13 +174,13 @@ export function render_chart(chart_canvas, data) {
             plugins: {
                 tooltip: {
                      titleFont: {
-                        size: 20 // z.B. 16 Pixel für den Titel
+                        size: 20
                     },
                     bodyFont: {
-                        size: 20 // z.B. 14 Pixel für den Hauptteil
+                        size: 20 
                     },
                     footerFont: {
-                        size: 20 // z.B. 12 Pixel für die Fußzeile
+                        size: 20 
                     },
                     callbacks: {
                         label: function(tooltipItems) {
@@ -295,9 +295,10 @@ export function update_dashboard_cards(dom_dashboard_elements, data) {
             // NEU: Fügt eine Klasse hinzu, um die Karte für den Klick vorzubereiten
             dom_dashboard_elements.goal_card.classList.add('goal-reached-clickable');
         } else {
-            dom_dashboard_elements.balance_goal_title.textContent = 'Verbleibend z. Ziel';
+            
             const remaining_goal = goal - balance;
-            dom_dashboard_elements.balance_goal_number.textContent = `${remaining_goal >= 0 ? '+' : ''}${remaining_goal} kcal`;
+            dom_dashboard_elements.balance_goal_title.textContent = `${remaining_goal >= 0 ? 'Esse noch' : 'Verbrenn noch'}`;
+            dom_dashboard_elements.balance_goal_number.textContent = `${remaining_goal >= 0 ? `${remaining_goal} kcal! 😋` : `${remaining_goal} kcal! 🔥`}`;
             // NEU: Entfernt die Klasse, falls das Ziel nicht mehr erreicht ist
             dom_dashboard_elements.goal_card.classList.remove('goal-reached-clickable');
         }

@@ -3,13 +3,25 @@ TODO:
 FRONDEND:
 
 1. TODO Kcal Goal anpassen so das es für Alle Perioden funktioniert
-2. TODO Modularisierung Abschließen
-3. TODO Bessere organisiation der Funktionen und potenzielle weitere auslagerung
-4. TODO die render_chart funktion aufteilen und übersichtlicher machen
-5. TODO Authentifizierungs bug fixen
-6. TODO API Bug fixen
+
+2. TODO Protein und Kohlenhydrate funktionalität zuende bringen (in modal und data-table bereits implementiert)
+
+3. TODO Sortierung von datumsangaben wird local nicht geupdatet (kleineres datum vom monat her wird unten gespeichert in der datenbank jedoch
+   richtig sortiert und beim nächsten laden auch richtig angezeigt --> locales sortieren im cache!)
+
+4. TODO Modularisierung Abschließen
+5. TODO scaling der seite verbessern ![alt text](image.png)
+6. TODO Bessere organisiation der Funktionen und potenzielle weitere auslagerung
+
+7. TODO die render_chart funktion aufteilen und übersichtlicher machen
+
+8. TODO Authentifizierungs bug fixen
+
+9. TODO API Bug fixen
 
 BACKEND:
+
+1. TODO Protein und Kohlenhydrate funktionalität zuende bringen (in modal und data-table bereits implementiert)
 
 DATENBANK:
 
