@@ -52,11 +52,16 @@ class TokenData(BaseModel):
 # ==============================================================================
 # Spezifische Create & Update Schemas
 # ==============================================================================
-class FoodCreate(FoodBase): pass
-class ExerciseTypeCreate(ExerciseTypeBase): pass
-class ConsumptionLogCreate(ConsumptionLogBase): pass
-class ActivityLogCreate(ActivityLogBase): pass
-class UserProfileUpdate(UserProfileBase): pass
+class FoodCreate(FoodBase): 
+    pass
+class ExerciseTypeCreate(ExerciseTypeBase): 
+    pass
+class ConsumptionLogCreate(ConsumptionLogBase): 
+    pass
+class ActivityLogCreate(ActivityLogBase): 
+    pass
+class UserProfileUpdate(UserProfileBase): 
+    pass
 
 class FoodUpdate(BaseModel):
     name: Optional[str] = None

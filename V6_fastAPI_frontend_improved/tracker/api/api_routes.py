@@ -83,10 +83,10 @@ async def create_entity(
         
     new_item = await entity_crud.create_item(db, user_id=current_user.user_id, item_data=item_data, model_class=config['model'])
     # Laden der für Serialisierung benötigten Beziehungen vor schließen der Session
-    if entity_name == 'consumptionlogs':
+    if entity_name == 'consumption_logs':
         # Für Konsum-Log, lade das zugehörige 'food'-Objekt
         await db.refresh(new_item, attribute_names=['food'])
-    elif entity_name == 'activitylogs':
+    elif entity_name == 'activity_logs':
         # Für Aktivitäts-Log, lade das zugehörige 'exercise_type'-Objekt
         await db.refresh(new_item, attribute_names=['exercise_type'])
     Schema = config['schema']
@@ -111,9 +111,9 @@ async def update_entity(
     updated_item = await entity_crud.update_item(db, db_item=db_item, item_data=item_data)
     
     # wie beim Erstellen
-    if entity_name == 'consumptionlogs':
+    if entity_name == 'consumption_logs':
         await db.refresh(updated_item, attribute_names=['food'])
-    elif entity_name == 'activitylogs':
+    elif entity_name == 'activity_logs':
         await db.refresh(updated_item, attribute_names=['exercise_type'])
     
     Schema = config['schema']
