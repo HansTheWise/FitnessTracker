@@ -5,11 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from typing import List, Any
 
+from ..models import entity_models
+
 from .. import security
 from ..crud import entity_crud
 from ..database import get_db
 
-from ..models import entity_models, user_models
+from ..models import user_models
 from ..schemas import entity_schemas
 from .api_entity_config import get_entity_config
 
@@ -74,12 +76,14 @@ async def get_entities(
 async def create_entity(
     entity_name: str,
     # Union-Typ: FastAPI überprüft/validiert automatisch Schemas
-    item_data: entity_schemas.ItemCreate, 
+    #item_data: entity_schemas.ItemCreate, 
     current_user: user_models.User = Depends(security.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Endpoint zum Erstellen eines Items für einen Entitätstyp."""
-    config = get_entity_config(entity_name)    
+    config = get_entity_config(entity_name) 
+    
+    item_data = config['create_schema']   
         
     new_item = await entity_crud.create_item(db, user_id=current_user.user_id, item_data=item_data, model_class=config['model'])
     # Laden der für Serialisierung benötigten Beziehungen vor schließen der Session
@@ -97,12 +101,13 @@ async def create_entity(
 async def update_entity(
     entity_name: str,
     item_id: int,
-    item_data: entity_schemas.ItemUpdate, # Nutze Union für automatische Validierung
+    #item_data: entity_schemas.ItemUpdate, # Nutze Union für automatische Validierung
     current_user: user_models.User = Depends(security.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Endpoint zum Aktualisieren eines Items."""
     config = get_entity_config(entity_name)
+    item_data = config['update_schema']
     
     db_item = await entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
     if not db_item:

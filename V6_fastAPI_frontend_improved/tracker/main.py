@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+
 from .models import base_model
+from .models import entity_models
 
 # Import router modules from the subdirectories
 from tracker.auth import auth_routes
@@ -10,7 +12,7 @@ from .api import api_routes
 
 # Import database components and models
 from .database import engine
-from .models import entity_models, user_models
+from .models import user_models
 from contextlib import asynccontextmanager
 
 

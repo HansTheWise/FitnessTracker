@@ -5,9 +5,27 @@ from typing import Optional, List, Union
 # ==============================================================================
 # Base Schemas (Definieren die Kern-Attribute)
 # ==============================================================================
+
 class FoodBase(BaseModel):
     name: str
-    calories_per_100g: int
+    calories_kcal: Optional[int] = None
+    calories_kJ: Optional[int] = None
+    
+    protein_g: Optional[float] = None
+    carbs_total_g: Optional[float] = None
+    carbs_sugar_g: Optional[float] = None
+    fat_total_g: Optional[float] = None
+    carbs_fiber_g: Optional[float] = None
+    fat_saturated_g: Optional[float] = None
+    fat_monounsaturated_g: Optional[float] = None
+    fat_polyunsaturated_g: Optional[float] = None
+    fat_trans_g: Optional[float] = None
+    artifical_sweeteners : Optional[bool] = None
+    cholesterol_mg: Optional[float] = None
+    sodium_mg: Optional[float] = None
+    vitamins: Optional[dict] = None
+    minerals: Optional[dict] = None
+    other_compounds: Optional[dict] = None
 
 class ExerciseTypeBase(BaseModel):
     name: str
@@ -52,8 +70,7 @@ class TokenData(BaseModel):
 # ==============================================================================
 # Spezifische Create & Update Schemas
 # ==============================================================================
-class FoodCreate(FoodBase): 
-    pass
+    
 class ExerciseTypeCreate(ExerciseTypeBase): 
     pass
 class ConsumptionLogCreate(ConsumptionLogBase): 
@@ -62,10 +79,12 @@ class ActivityLogCreate(ActivityLogBase):
     pass
 class UserProfileUpdate(UserProfileBase): 
     pass
+class FoodCreate(FoodBase):
+    pass
 
-class FoodUpdate(BaseModel):
+class FoodUpdate(FoodBase):
     name: Optional[str] = None
-    calories_per_100g: Optional[int] = None
+
 
 class ExerciseTypeUpdate(BaseModel):
     name: Optional[str] = None
@@ -81,10 +100,11 @@ class ActivityLogUpdate(BaseModel):
     exercise_type_id: Optional[int] = None
     duration_min: Optional[int] = None
 
+'''''
 # "State of the Art": Union-Typen für die generischen Endpunkte.
 ItemCreate = Union[FoodCreate, ExerciseTypeCreate, ConsumptionLogCreate, ActivityLogCreate]
 ItemUpdate = Union[FoodUpdate, ExerciseTypeUpdate, ConsumptionLogUpdate, ActivityLogUpdate, UserProfileUpdate]
-
+'''
 # ==============================================================================
 # Read Schemas (für API-Antworten)
 # ==============================================================================
