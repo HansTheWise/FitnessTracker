@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import date
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from .base_model import Base
+from tracker.models.base_model import Base
 
 
 class User(Base):

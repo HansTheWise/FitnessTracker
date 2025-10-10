@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from .. import security
-from ..schemas import entity_schemas
-from ..crud import user_crud, profile_crud
-from ..database import get_db
-from ..models import user_models
+from tracker import security
+from tracker.schemas import entity_schemas
+from tracker.crud import user_crud, profile_crud
+from tracker.database import get_db
+from tracker.models import user_models
 
 # --- ASYNC DB CHANGES ---
 

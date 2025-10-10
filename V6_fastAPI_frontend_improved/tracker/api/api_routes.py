@@ -5,15 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from typing import List, Any
 
-from .. import security
-from ..crud import entity_crud
-from ..database import get_db
+from tracker import security
+from tracker.crud import entity_crud
+from tracker.database import get_db
 
-from ..models import entity_models, user_models
-from ..schemas import entity_schemas
-from .api_entity_config import get_entity_config
+from tracker.models import entity_models, user_models
+from tracker.schemas import entity_schemas
+from tracker.api.api_entity_config import get_entity_config
 
-from ..crud import profile_crud
+from tracker.crud import profile_crud
 
 # --- ASYNC DB CHANGES ---
 

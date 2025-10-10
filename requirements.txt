@@ -11,10 +11,7 @@ pydantic
 pydantic-settings
 
 pydantic-settings handles .env loading, replacing python-decouple for a more integrated solution
---- Security & Authentication ---
 python-jose[cryptography]
 passlib[bcrypt]
-
---- Utilities ---
 python-multipart
 python-dateutil

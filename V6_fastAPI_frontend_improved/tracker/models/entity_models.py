@@ -3,7 +3,7 @@ from typing import List
 from datetime import datetime
 from sqlalchemy import ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from .base_model import Base
+from tracker.models.base_model import Base
 
 
 class Food(Base):

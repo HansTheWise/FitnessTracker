@@ -1,0 +1,44 @@
+# Docker Compose Konfiguration für die Produktionsumgebung
+version: '3.8'
+
+services:
+  # Service für die FastAPI-Anwendung
+  app:
+    # Baut das Image basierend auf dem Dockerfile im aktuellen Verzeichnis
+    build: .
+    # Leitet den Port 8000 vom Container auf den Host weiter,
+    # damit wir die API unter http://localhost:8000 erreichen können.
+    ports:
+      - "8000:8000"
+    # Lädt die Umgebungsvariablen aus der .env-Datei in den Container.
+    # Dies ist der sichere Weg, um Konfigurationen zu verwalten.
+    env_file:
+      - .env
+    # Stellt sicher, dass der 'db'-Container vollständig gestartet und bereit ist,
+    # bevor der 'app'-Container gestartet wird.
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Service für die PostgreSQL-Datenbank
+  db:
+    # Verwendet ein offizielles, schlankes PostgreSQL-Image
+    image: postgres:15-alpine
+    # Bindet die Datenbankdaten an ein benanntes Volume auf dem Host-System.
+    # Dadurch bleiben die Daten erhalten, auch wenn der Container entfernt wird.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # Lädt die Datenbank-Konfiguration (Benutzer, Passwort, DB-Name) aus der .env-Datei.
+    env_file:
+      - .env
+    ports:
+      - "5433:5432" # Leitet Port 5432 vom Container auf Port 5433 deines PCs
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Definiert das benannte Volume, um die Persistenz der Datenbank zu gewährleisten.
+volumes:
+  postgres_data:
