@@ -36,8 +36,13 @@ export async function api_fetch(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-        const error_data = await response.json().catch(() => ({ msg: "An unknown API error occurred." }));
-        throw new Error(error_data.msg || "An API error has occurred.");
+    // Try to parse the JSON error response from the backend
+        const error_data = await response.json().catch(() => {
+            // Fallback if the response is not valid JSON
+            return { detail: "An unknown API error occurred." };
+        });
+    // Throw an error with the specific message from FastAPI (which uses the 'detail' key)
+        throw new Error(error_data.detail || "An API error has occurred.");
     }
     
     // Handle successful responses with no content (e.g., DELETE 204)

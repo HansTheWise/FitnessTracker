@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from .config import settings
+from tracker.config import settings
 
 if not settings.SQLALCHEMY_DATABASE_URI:
     raise ValueError("Die Datenbank-URL (SQLALCHEMY_DATABASE_URI) ist nicht konfiguriert. Bitte überprüfen Sie Ihre .env-Datei.")

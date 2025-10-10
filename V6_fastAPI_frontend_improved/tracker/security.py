@@ -6,12 +6,12 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
-from .crud import user_crud
+from tracker.crud import user_crud
 
 
-from .config import settings
-from .database import get_db
-from .models import user_models
+from tracker.config import settings
+from tracker.database import get_db
+from tracker.models import user_models
 
 # --- Configuration ---
 # Password hashing context

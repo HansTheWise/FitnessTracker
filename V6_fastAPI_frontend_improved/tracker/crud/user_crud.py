@@ -1,8 +1,8 @@
 import asyncio
 from sqlalchemy import select
-from ..schemas import entity_schemas
-from ..models import user_models
-from .. import security
+from tracker.schemas import entity_schemas
+from tracker.models import user_models
+from tracker import security
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +41,7 @@ async def create_user(db: AsyncSession, user: entity_schemas.UserCreate) -> user
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
-    
+    await db.refresh(db_user, attribute_names=['profile'])
     return db_user
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> Optional[user_models.User]:

@@ -1,8 +1,8 @@
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..schemas import entity_schemas
-from ..models import user_models
+from tracker.schemas import entity_schemas
+from tracker.models import user_models
 
 
 # --- ASYNC DB CHANGES ---

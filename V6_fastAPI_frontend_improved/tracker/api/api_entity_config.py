@@ -1,5 +1,5 @@
-from ..models import entity_models
-from ..schemas import entity_schemas
+from tracker.models import entity_models
+from tracker.schemas import entity_schemas
 from fastapi import HTTPException
 
 ENTITY_MAP = {
