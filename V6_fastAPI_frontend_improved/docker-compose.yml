@@ -1,44 +1,39 @@
-# Docker Compose Konfiguration für die Produktionsumgebung
-version: '3.8'
+# This file defines the services, networks, and volumes for your application.
+# It's configured for a development environment with live-reloading.
 
 services:
-  # Service für die FastAPI-Anwendung
+  # The FastAPI application service
   app:
-    # Baut das Image basierend auf dem Dockerfile im aktuellen Verzeichnis
     build: .
-    # Leitet den Port 8000 vom Container auf den Host weiter,
-    # damit wir die API unter http://localhost:8000 erreichen können.
     ports:
       - "8000:8000"
-    # Lädt die Umgebungsvariablen aus der .env-Datei in den Container.
-    # Dies ist der sichere Weg, um Konfigurationen zu verwalten.
     env_file:
       - .env
-    # Stellt sicher, dass der 'db'-Container vollständig gestartet und bereit ist,
-    # bevor der 'app'-Container gestartet wird.
+    # This command overrides the Dockerfile's CMD to run Uvicorn in reload mode,
+    # which is essential for development.
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
     depends_on:
       db:
         condition: service_healthy
 
-  # Service für die PostgreSQL-Datenbank
+  # The PostgreSQL database service
   db:
-    # Verwendet ein offizielles, schlankes PostgreSQL-Image
     image: postgres:15-alpine
-    # Bindet die Datenbankdaten an ein benanntes Volume auf dem Host-System.
-    # Dadurch bleiben die Daten erhalten, auch wenn der Container entfernt wird.
+    # Persist database data on the host machine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    # Lädt die Datenbank-Konfiguration (Benutzer, Passwort, DB-Name) aus der .env-Datei.
     env_file:
       - .env
+    # Expose the database port to the host for tools like pgAdmin
     ports:
-      - "5433:5432" # Leitet Port 5432 vom Container auf Port 5433 deines PCs
+      - "5433:5432"
+    # Healthcheck ensures the 'app' service waits until the database is truly ready
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-# Definiert das benannte Volume, um die Persistenz der Datenbank zu gewährleisten.
+# Defines the named volume for persistent database storage
 volumes:
   postgres_data:
