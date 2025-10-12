@@ -1,18 +1,59 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import ForeignKey, TIMESTAMP
+from sqlalchemy import JSON, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tracker.models.base_model import Base
 
-
+'''''
+class FoodStat(Base):
+    __tablename__ = 'food_stats'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #food_id: Mapped[int] = mapped_column(ForeignKey('foods.food_id'), unique=True)
+    food: Mapped["Food"] = relationship(back_populates='food_stats')
+'''
+    
+    
 class Food(Base):
     __tablename__ = 'foods'
     id: Mapped[int] = mapped_column('food_id', primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
+    #food_stat_id: Mapped[int] = mapped_column(ForeignKey('food_stats.id'))
     name: Mapped[str] = mapped_column()
-    calories_per_100g: Mapped[int] = mapped_column()
-
+    #calories_per_100g: Mapped[int] = mapped_column()
+#------ Food Stats  -----------------------------------
+# --- alles pro 100g !!!!!!!!---
+    calories_kcal: Mapped[Optional[int]] = mapped_column()
+    calories_kJ: Mapped[Optional[int]] = mapped_column()
+    
+    # --- Makronährstoffe Base---
+    protein_g: Mapped[Optional[float]] = mapped_column()
+    carbs_total_g: Mapped[Optional[float]] = mapped_column()
+    carbs_sugar_g: Mapped[Optional[float]] = mapped_column()
+    fat_total_g: Mapped[Optional[float]] = mapped_column()
+    
+    # --- Makronährstoffe Details ---
+    # ballaststoffe
+    carbs_fiber_g: Mapped[Optional[float]] = mapped_column()
+    # fett details
+    fat_saturated_g: Mapped[Optional[float]] = mapped_column()
+    fat_monounsaturated_g: Mapped[Optional[float]] = mapped_column()
+    fat_polyunsaturated_g: Mapped[Optional[float]] = mapped_column()
+    fat_trans_g: Mapped[Optional[float]] = mapped_column()
+    # cholesterin und salz
+    artifical_sweeteners : Mapped[Optional[bool]] = mapped_column()
+    cholesterol_mg: Mapped[Optional[float]] = mapped_column()
+    sodium_mg: Mapped[Optional[float]] = mapped_column()
+    
+    
+    # --- vitamine minerale und anderes zeug ---
+    vitamins: Mapped[Optional[dict]] = mapped_column(JSON) # {"vitamin_C_mg" : 90, ...} zB
+    minerals: Mapped[Optional[dict]] = mapped_column(JSON)
+    # koffein und der ganze bullshit
+    other_compounds: Mapped[Optional[dict]] = mapped_column(JSON)
+    
+    #food_stats: Mapped[List["FoodStat"]] = relationship(back_populates='food', cascade="all, delete-orphan", uselist=False)
     consumptions: Mapped[List["ConsumptionLog"]] = relationship(back_populates='food', cascade="all, delete-orphan")
 
 class ExerciseType(Base):
@@ -37,8 +78,9 @@ class ConsumptionLog(Base):
 
     @property
     def calories(self) -> float:
-        if self.food and self.amount_g:
-            return round((self.amount_g / 100) * self.food.calories_per_100g)
+        # zugriff auf food_stats Objekt
+        if self.food and self.food.food_stats and self.amount_g and self.food.food_stats.calories_kcal:
+            return round((self.amount_g / 100.0) * self.food.food_stats.calories_kcal)
         return 0.0
     
     @property
