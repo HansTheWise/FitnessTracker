@@ -1,4 +1,5 @@
 # This file contains development-specific overrides
+#! hier befinden sich die anleitung wie das image ausgeführt werden soll
 services:
   app:
     # This command enables Uvicorn's hot-reloading for development

@@ -12,7 +12,8 @@ from tracker.api import api_routes
 from tracker.database import engine
 from tracker.models import entity_models, user_models
 from contextlib import asynccontextmanager
-
+from fastapi import status
+from sqlalchemy import text
 
 @asynccontextmanager # decorator damit FastAPI die Funktion als Lifespan-Manager erkennt
 async def lifespan(app: FastAPI):
@@ -70,3 +71,29 @@ async def read_root():
     Liefert die Haupt-index.html-Datei für die Single-Page Application aus.
     """
     return "tracker/templates/index.html"
+
+@app.get("/health", 
+         status_code=status.HTTP_200_OK,
+         tags=["Health"],
+         include_in_schema=False)
+async def health_check():
+    """
+    Health Check Endpoint für Container Orchestration.
+    Prüft API und Datenbank-Verfügbarkeit.
+    """
+    try:
+        # Prüfe Datenbankverbindung
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "version": "1.0.0"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e)
+        }

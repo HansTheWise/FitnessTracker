@@ -1,0 +1,237 @@
+# ==============================================================================
+# GitHub Actions Workflow: Automatisches Docker Image Building
+# ==============================================================================
+# Dieser Workflow baut dein Docker Image und pusht es zu GitHub Container Registry
+# Team-Mitglieder können das Image dann pullen ohne selbst zu bauen
+
+name: Build and Push Docker Image
+
+# ==============================================================================
+# TRIGGER: Wann soll dieser Workflow laufen?
+# ==============================================================================
+on:
+ # Bei jedem Push zum main Branch
+ push:
+  branches:
+   - "main"
+   # Optional: Auch für develop-Branch aktivieren
+   # - "develop"
+
+ # Bei Pull Requests zum main Branch (nur bauen, nicht pushen)
+ pull_request:
+  branches:
+   - "main"
+
+ # Manueller Trigger über GitHub UI (Actions Tab → Run workflow)
+ workflow_dispatch:
+
+# ==============================================================================
+# ENVIRONMENT VARIABLES: Globale Variablen für alle Jobs
+# ==============================================================================
+env:
+ # GitHub Container Registry URL
+ REGISTRY: ghcr.io
+
+ # Image-Name basierend auf deinem Repository
+ # Format: ghcr.io/username/repository-name
+ # Beispiel: ghcr.io/maxmustermann/fitness-tracker
+ IMAGE_NAME: ${{ github.repository }}
+
+# ==============================================================================
+# JOBS: Was soll ausgeführt werden?
+# ==============================================================================
+jobs:
+ # Job-Name: build-and-push
+ build-and-push:
+  # Läuft auf einem Ubuntu-Server (bereitgestellt von GitHub)
+  # Kosten: 0€ für Public Repos, 2000 Minuten/Monat für Private Repos
+  runs-on: ubuntu-latest
+
+  # WICHTIG: Permissions für GITHUB_TOKEN
+  # Definiert, was der automatische Token darf
+  permissions:
+   contents: read # Lesen des Repository-Codes
+   packages: write # Schreiben zu GitHub Packages (Container Registry)
+   id-token: write # Für Sigstore/Cosign (Image Signing)
+   security-events: write # Für Security Scanning Results
+
+  # ==========================================================================
+  # STEPS: Einzelne Aktionen, die nacheinander ausgeführt werden
+  # ==========================================================================
+  steps:
+   # ----------------------------------------------------------------------
+   # STEP 1: Repository Code herunterladen
+   # ----------------------------------------------------------------------
+   - name: Checkout repository
+     uses: actions/checkout@v4
+     # Was passiert hier?
+     # - Lädt deinen Code auf den GitHub Runner
+     # - Equivalent zu: git clone + git checkout
+     # - @v4 ist die Version der Action (immer latest verwenden)
+
+   # ----------------------------------------------------------------------
+   # STEP 2: Docker Buildx Setup
+   # ----------------------------------------------------------------------
+   - name: Set up Docker Buildx
+     uses: docker/setup-buildx-action@v3
+     # Was ist Buildx?
+     # - Erweiterte Docker Build Engine
+     # - Ermöglicht: Multi-Platform Builds, Build Cache, Layer Caching
+     # - Ohne Buildx: Nur AMD64, kein ARM64
+     # - Mit Buildx: AMD64 + ARM64 gleichzeitig
+
+   # ----------------------------------------------------------------------
+   # STEP 3: Login zu GitHub Container Registry
+   # ----------------------------------------------------------------------
+   - name: Log in to GitHub Container Registry
+     uses: docker/login-action@v3
+     with:
+      registry: ${{ env.REGISTRY }}
+
+      # Username: Der Actor, der den Workflow triggert
+      # Bei Push: dein Username
+      # Bei PR: Username des PR-Erstellers
+      username: ${{ github.actor }}
+
+      # Password: Automatisch generierter Token
+      # KEIN PAT nötig! GitHub erstellt diesen Token automatisch
+      # Token-Lebensdauer: Nur für diesen Workflow-Run
+      # Permissions: Definiert durch "permissions:" oben
+      password: ${{ secrets.GITHUB_TOKEN }}
+     # Nach diesem Step: Docker ist authentifiziert bei ghcr.io
+
+   # ----------------------------------------------------------------------
+   # STEP 4: Docker Metadata extrahieren (Smart Tagging)
+   # ----------------------------------------------------------------------
+   - name: Extract Docker metadata
+     id: meta
+     uses: docker/metadata-action@v5
+     with:
+      images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # Tagging-Strategie (mehrere Tags gleichzeitig)
+      tags: |
+       # Tag 1: Branch-Name (main, develop, etc.)
+       type=ref,event=branch
+
+       # Tag 2: Pull Request Nummer (pr-123)
+       type=ref,event=pr
+
+       # Tag 3: Git Tag falls vorhanden (v1.0.0)
+       type=semver,pattern={{version}}
+       type=semver,pattern={{major}}.{{minor}}
+
+       # Tag 4: Git Commit SHA mit Branch-Prefix (main-a1b2c3d)
+       type=sha,prefix={{branch}}-
+
+       # Tag 5: "latest" nur für main Branch
+       type=raw,value=latest,enable={{is_default_branch}}
+
+     # Output: Dieser Step generiert automatisch optimale Tags
+     # Beispiel für main branch, commit abc123:
+     # - ghcr.io/user/repo:main
+     # - ghcr.io/user/repo:main-abc123
+     # - ghcr.io/user/repo:latest
+
+     # Bei Git Tag v1.2.3:
+     # - ghcr.io/user/repo:1.2.3
+     # - ghcr.io/user/repo:1.2
+     # - ghcr.io/user/repo:latest
+
+   # ----------------------------------------------------------------------
+   # STEP 5: Docker Image bauen und pushen
+   # ----------------------------------------------------------------------
+   - name: Build and push Docker image
+     id: build-and-push
+     uses: docker/build-push-action@v6
+     with:
+      # Build Context: Welches Verzeichnis?
+      context: .
+
+      # Welches Dockerfile?
+      file: ./Dockerfile
+
+      # Welches Stage aus dem Multi-Stage Build?
+      target: runtime
+
+      # Push nur bei Push-Events, nicht bei Pull Requests
+      # Bei PR: Nur bauen (zur Validierung), nicht pushen
+      push: ${{ github.event_name != 'pull_request' }}
+
+      # Tags: Nutze die automatisch generierten Tags von Step 4
+      tags: ${{ steps.meta.outputs.tags }}
+
+      # Labels: Metadata für das Image
+      labels: ${{ steps.meta.outputs.labels }}
+
+      # Build Cache: KRITISCH für Geschwindigkeit!
+      # type=gha = GitHub Actions Cache
+      # Erstes Build: 3-5 Minuten
+      # Folgende Builds mit Cache: 30-60 Sekunden
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
+
+      # Multi-Platform Build
+      # AMD64: Standard Linux/Mac Intel
+      # ARM64: Mac M1/M2, Raspberry Pi, AWS Graviton
+      platforms: linux/amd64,linux/arm64
+
+      # Optional: Build Arguments
+      # build-args: |
+      #   PYTHON_VERSION=3.11
+      #   BUILD_DATE=${{ github.event.head_commit.timestamp }}
+
+   # ----------------------------------------------------------------------
+   # STEP 6: Security Scanning mit Trivy
+   # ----------------------------------------------------------------------
+   - name: Run Trivy vulnerability scanner
+     uses: aquasecurity/trivy-action@master
+     with:
+      # Welches Image scannen?
+      # Nutze das gerade gebaute Image
+      image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+
+      # Output-Format: SARIF (für GitHub Security)
+      format: "sarif"
+      output: "trivy-results.sarif"
+
+      # Nur kritische und hohe Schwachstellen
+      severity: "CRITICAL,HIGH"
+
+     # Nur bei Push-Events ausführen, nicht bei PRs
+     if: github.event_name != 'pull_request'
+
+     # Was macht Trivy?
+     # - Scannt Image nach bekannten Sicherheitslücken (CVEs)
+     # - Prüft: OS Packages, Python Packages, Dependencies
+     # - Vergleicht mit Vulnerability Databases
+     # - Erstellt Report für GitHub Security Tab
+
+   # ----------------------------------------------------------------------
+   # STEP 7: Upload Scan-Results zu GitHub Security
+   # ----------------------------------------------------------------------
+   - name: Upload Trivy results to GitHub Security
+     uses: github/codeql-action/upload-sarif@v3
+     with:
+      sarif_file: "trivy-results.sarif"
+
+     if: github.event_name != 'pull_request'
+
+     # Ergebnis: Security-Alerts in GitHub UI sichtbar
+     # Repository → Security → Code scanning alerts
+
+   # ----------------------------------------------------------------------
+   # STEP 8: Build-Informationen als Comment (bei PRs)
+   # ----------------------------------------------------------------------
+   - name: Comment on PR
+     uses: actions/github-script@v7
+     if: github.event_name == 'pull_request'
+     with:
+      script: |
+       github.rest.issues.createComment({
+         issue_number: context.issue.number,
+         owner: context.repo.owner,
+         repo: context.repo.repo,
+         body: `✅ Docker Image erfolgreich gebaut!\n\n**Tags:**\n\`\`\`\n${{ steps.meta.outputs.tags }}\n\`\`\`\n\n**Platforms:** linux/amd64, linux/arm64`
+       })
+     # Bei Pull Requests: Postet Build-Info als PR-Comment
