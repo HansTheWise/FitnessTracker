@@ -26,3 +26,9 @@ class UserProfile(Base):
     tracking_start_date: Mapped[Optional[date]] = mapped_column()
     balance_goal_kcal: Mapped[Optional[int]] = mapped_column()
     user: Mapped["User"] = relationship(back_populates='profile')
+
+class Role(Base):
+    __tablename__ = 'roles'
+    role_id: Mapped[int] = mapped_column(primary_key=True)
+    role_name: Mapped[str] = mapped_column(String(20))
+    role_rank: Mapped[str] = mapped_column(String(20)) 
