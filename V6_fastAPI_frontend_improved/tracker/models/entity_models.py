@@ -25,7 +25,14 @@ class Food(Base):
 #------ Food Stats  -----------------------------------
 # --- alles pro 100g !!!!!!!!---
     calories_kcal: Mapped[Optional[int]] = mapped_column()
-    calories_kJ: Mapped[Optional[int]] = mapped_column()
+    
+    #calories_kJ: Mapped[Optional[int]] = mapped_column()
+    @property
+    def calories_kJ(self) -> float:
+        # zugriff auf food_stats Objekt
+        if self.calories_kcal:
+            return round((self.calories_kcal * 4.184))
+        return 0.0
     
     # --- Makronährstoffe Base---
     protein_g: Mapped[Optional[float]] = mapped_column()
@@ -79,8 +86,8 @@ class ConsumptionLog(Base):
     @property
     def calories(self) -> float:
         # zugriff auf food_stats Objekt
-        if self.food and self.food.food_stats and self.amount_g and self.food.food_stats.calories_kcal:
-            return round((self.amount_g / 100.0) * self.food.food_stats.calories_kcal)
+        if self.food and self.amount_g and self.food.calories_kcal:
+            return round((self.amount_g / 100.0) * self.food.calories_kcal)
         return 0.0
     
     @property
