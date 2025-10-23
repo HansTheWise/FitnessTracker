@@ -18,7 +18,7 @@ pydantic-settings==2.6.0
 
 # Utilities
 python-dotenv==1.0.1
-python-multipart==0.0.17  # Für File Uploads & Form Data
+python-multipart==0.0.18  # Für File Uploads & Form Data
 
 # Health Checks & Monitoring
 httpx==0.27.2  # Async HTTP Client (besser als requests für FastAPI)
