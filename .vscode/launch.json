@@ -8,7 +8,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "tracker.main:app",
+                "main:app",
                 "--reload"
             ],
             "cwd": "${workspaceFolder}/V6_fastAPI_frontend_improved" // <-- Diese Zeile hinzufügen
