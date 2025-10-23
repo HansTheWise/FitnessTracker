@@ -1,5 +1,7 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException, status
+# Erforderliche Imports hinzugefügt
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy.exc import IntegrityError
@@ -22,6 +24,45 @@ router = APIRouter(
     prefix="/api",
     tags=["Generic Entities"]
 )
+
+# --- DEPENDENCIES FÜR DYNAMISCHES BODY-PARSING ---
+
+async def get_create_data(entity_name: str, request: Request):
+    """
+    Dependency, die den Request-Body basierend auf dem
+    dynamischen entity_name für die Erstellung parst.
+    """
+    config = get_entity_config(entity_name)
+    CreateSchema = config['create_schema']
+    try:
+        json_data = await request.json()
+        # Parst die JSON-Daten in eine Instanz des korrekten Schemas
+        item_data = CreateSchema.model_validate(json_data)
+        return item_data
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors())
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
+async def get_update_data(entity_name: str, request: Request):
+    """
+    Dependency, die den Request-Body basierend auf dem
+    dynamischen entity_name für Updates parst.
+    """
+    config = get_entity_config(entity_name)
+    UpdateSchema = config['update_schema']
+    try:
+        json_data = await request.json()
+        # Parst die JSON-Daten in eine Instanz des korrekten Schemas
+        item_data = UpdateSchema.model_validate(json_data)
+        return item_data
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors())
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
+
+# --- TRACKING DATA ENDPOINT ---
 
 @router.get("/tracking-data", response_model=entity_schemas.AllTrackingData)
 async def get_all_tracking_data(
@@ -53,6 +94,8 @@ async def get_all_tracking_data(
         "user_profile": profile if profile else None
     }
 
+# --- GENERISCHE ENTITY ENDPOINTS (KORRIGIERT) ---
+
 @router.get("/{entity_name}", response_model=List[Any])
 async def get_entities(
     entity_name: str,
@@ -73,17 +116,19 @@ async def get_entities(
 @router.post("/{entity_name}", response_model=Any, status_code=status.HTTP_201_CREATED)
 async def create_entity(
     entity_name: str,
-    # Union-Typ: FastAPI überprüft/validiert automatisch Schemas
-    #item_data: entity_schemas.ItemCreate, 
+    # KORREKTUR: Nutze die Dependency, um die geparste item_data Instanz zu erhalten
+    item_data: Any = Depends(get_create_data), 
     current_user: user_models.User = Depends(security.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Endpoint zum Erstellen eines Items für einen Entitätstyp."""
     config = get_entity_config(entity_name) 
     
-    item_data = config['create_schema']   
+    # BUG ENTFERNT: item_data = config['create_schema']   
         
+    # 'item_data' ist jetzt eine validierte Pydantic-Instanz aus der Dependency
     new_item = await entity_crud.create_item(db, user_id=current_user.user_id, item_data=item_data, model_class=config['model'])
+    
     # Laden der für Serialisierung benötigten Beziehungen vor schließen der Session
     if entity_name == 'consumption_logs':
         # Für Konsum-Log, lade das zugehörige 'food'-Objekt
@@ -91,6 +136,7 @@ async def create_entity(
     elif entity_name == 'activity_logs':
         # Für Aktivitäts-Log, lade das zugehörige 'exercise_type'-Objekt
         await db.refresh(new_item, attribute_names=['exercise_type'])
+    
     Schema = config['schema']
     return Schema.model_validate(new_item, from_attributes=True)
 
@@ -99,18 +145,21 @@ async def create_entity(
 async def update_entity(
     entity_name: str,
     item_id: int,
-    #item_data: entity_schemas.ItemUpdate, # Nutze Union für automatische Validierung
+    # KORREKTUR: Nutze die Dependency, um die geparste item_data Instanz zu erhalten
+    item_data: Any = Depends(get_update_data), 
     current_user: user_models.User = Depends(security.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Endpoint zum Aktualisieren eines Items."""
     config = get_entity_config(entity_name)
-    item_data = config['update_schema']
+    
+    # BUG ENTFERNT: item_data = config['update_schema']
     
     db_item = await entity_crud.get_item_by_id(db, user_id=current_user.user_id, item_id=item_id, model_class=config['model'], pk_attr=config['pk'])
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
     
+    # 'item_data' ist jetzt eine validierte Pydantic-Instanz
     updated_item = await entity_crud.update_item(db, db_item=db_item, item_data=item_data)
     
     # wie beim Erstellen
