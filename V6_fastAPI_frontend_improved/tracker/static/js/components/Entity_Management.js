@@ -20,7 +20,7 @@ function get_modal_form_fields(entity) {
     const exerciseOptions = State_Service.get_local_entity('exercise_types').map(e => `<option value="${e.id}">${e.name}</option>`).join('');
 
     switch (entity) {
-        case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div> <div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_per_100g" class="form-control" required></div> <div class="mb-3"><label class="form-label">Protein / 100g</label><input type="number" id="form-protein_per_100g" class="form-control" required></div> <div class="mb-3"><label class="form-label">Kohlenhydrate / 100g</label><input type="number" id="form-carbohydrate_per_100g" class="form-control" required></div>`;
+        case "foods": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div> <div class="mb-3"><label class="form-label">Kalorien / 100g</label><input type="number" id="form-calories_kcal" class="form-control" required></div> <div class="mb-3"><label class="form-label">Protein / 100g</label><input type="number" id="form-protein_per_100g" class="form-control" required></div> <div class="mb-3"><label class="form-label">Kohlenhydrate / 100g</label><input type="number" id="form-carbohydrate_per_100g" class="form-control" required></div>`;
         case "exercise_types": return `<div class="mb-3"><label class="form-label">Name</label><input type="text" id="form-name" class="form-control" required></div><div class="mb-3"><label class="form-label">Kalorien / Stunde</label><input type="number" id="form-calories_per_hour" class="form-control" required></div>`;
         case "consumption_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Nahrungsmittel</label><select id="form-food_id" class="form-select">${foodOptions}</select></div><div class="mb-3"><label class="form-label">Menge (g)</label><input type="number" id="form-amount_g" class="form-control" required></div>`;
         case "activity_logs": return `<div class="mb-3"><label class="form-label">Datum & Uhrzeit</label><input type="date" id="form-log_date" class="form-control" required></div><div class="mb-3"><label class="form-label">Bewegung</label><select id="form-exercise_type_id" class="form-select">${exerciseOptions}</select></div><div class="mb-3"><label class="form-label">Dauer (min)</label><input type="number" id="form-duration_min" class="form-control" required></div>`;
@@ -30,7 +30,7 @@ function get_modal_form_fields(entity) {
 
 function get_payload_from_modal(entity) {
     const fields = {
-        foods: ["name", "calories_per_100g"],
+        foods: ["name", "calories_kcal"],
         exercise_types: ["name", "calories_per_hour"],
         consumption_logs: ["log_date", "food_id", "amount_g"],
         activity_logs: ["log_date", "exercise_type_id", "duration_min"]

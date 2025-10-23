@@ -83,7 +83,17 @@ class FoodCreate(FoodBase):
     pass
 
 class FoodUpdate(FoodBase):
-    name: Optional[str] = None
+    name: str
+    calories_kcal: Optional[int] = None
+    calories_kJ: Optional[int] = None
+    protein_g: Optional[float] = None
+    carbs_total_g: Optional[float] = None
+    carbs_sugar_g: Optional[float] = None
+    fat_total_g: Optional[float] = None
+    carbs_fiber_g: Optional[float] = None
+    fat_saturated_g: Optional[float] = None
+    fat_monounsaturated_g: Optional[float] = None
+    fat_polyunsaturated_g: Optional[float] = None
 
 
 class ExerciseTypeUpdate(BaseModel):
