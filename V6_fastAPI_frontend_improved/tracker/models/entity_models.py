@@ -12,11 +12,7 @@ class Food(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     name: Mapped[str] = mapped_column()
     calories_kcal: Mapped[Optional[int]] = mapped_column()
-    @property
-    def calories_kJ(self) -> float:
-        if self.calories_kcal:
-            return round((self.calories_kcal * 4.184))
-        return 0.0
+    calories_kJ: Mapped[Optional[int]] = mapped_column()
     
     protein_g: Mapped[Optional[float]] = mapped_column()
     carbs_total_g: Mapped[Optional[float]] = mapped_column()
