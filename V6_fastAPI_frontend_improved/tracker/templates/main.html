@@ -7,8 +7,13 @@
                               </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                              <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab"
-                                        data-bs-target="#dashboard-pane" type="button" role="tab">Auswertung
+                              <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard-pane" 
+                                        type="button" role="tab">Auswertung
+                              </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                              <button class="nav-link" id="entries-tab" data-bs-toggle="tab" data-bs-target="#entries-pane"
+                                        type="button" role="tab">Einträge
                               </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -120,6 +125,45 @@
                                         </div>
                               </div>
                     </div>
+
+                    <!-- Entries Tab -->
+                    <div class="tab-pane fade" id="entries-pane" role="tabpanel" aria-labelledby="entries-tab">
+                              <div class="row g-3">
+                                        <div class="col-md-8">
+                                                  <div class="card" style="height: 75vh; overflow-y: auto;">
+                                                            <div class="card-body" id="calendar-container">
+                                                                      <p>Kalender wird geladen...</p>
+                                                            </div>
+                                                  </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                                  <div class="card">
+                                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                                      <div class="btn-group" role="group">
+                                                                                <button type="button" id="flyout-btn-konsum"
+                                                                                          class="btn btn-primary active"
+                                                                                          data-view="consumption">Konsum</button>
+                                                                                <button type="button" id="flyout-btn-aktivitaeten"
+                                                                                          class="btn btn-primary"
+                                                                                          data-view="activity">Aktivitäten</button>
+                                                                      </div>
+                                                                      <span id="flyout-selected-date" class="fs-5">---</span>
+                                                                      <button id="flyout-add-btn"
+                                                                                class="btn btn-success btn-3g rounded-circle">
+                                                                                <i class="bi bi-plus-lg"></i>
+                                                                      </button>
+                                                            </div>
+                                                            <div class="card-body" style="height: calc(75vh - 60px); overflow-y: auto;">
+                                                                      <div id="flyout-content-container">
+                                                                                <p>Bitte einen Tag im Kalender auswählen.</p>
+                                                                      </div>
+                                                            </div>
+                                                  </div>
+                                        </div>
+                              </div>
+                    </div>
+
                     <!-- Data Table Tabs -->
                     <div class="tab-pane fade" id="foods-pane" role="tabpanel" aria-labelledby="foods-tab">
                               <div class="d-flex justify-content-between align-items-center my-3">
@@ -158,5 +202,6 @@
                               <data-table entity="activity_logs"
                                         columns='[{"key": "log_date", "label": "Datum", "format": "datetime"}, {"key": "exercise_name", "label": "Bewegung"}, {"key": "duration_min", "label": "Dauer (min)"}]'></data-table>
                     </div>
+                    
           </div>
 </div>

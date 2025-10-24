@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // Ein beliebiger Name für deinen Task
+      "label": "Start Docker Compose (Dev)",
+      "type": "shell",
+      // Dein Befehl
+      "command": "docker-compose -f docker-compose.yml -f docker-compose.overwrite.yml up --build",
+      // Das Verzeichnis, in dem der Befehl ausgeführt wird
+      "options": {
+        "cwd": "${workspaceFolder}/V6_fastAPI_frontend_improved"
+      },
+      // Optional: Markiert dies als den Standard-Build-Befehl
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      // Wichtig: Öffnet ein Terminal und zeigt die Ausgabe an
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}

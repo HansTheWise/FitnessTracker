@@ -1,17 +1,13 @@
-// .vscode/launch.json
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: FastAPI",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "uvicorn",
-            "args": [
-                "main:app",
-                "--reload"
-            ],
-            "cwd": "${workspaceFolder}/V6_fastAPI_frontend_improved" // <-- Diese Zeile hinzufügen
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Dies ist die neue Konfiguration, die du auswählst
+      "name": "Start Docker (via Task)",
+      "type": "node", // Wir brauchen einen "Dummy"-Typ, "node" ist harmlos
+      "request": "launch",
+      // WICHTIG: Führt den Task mit dem passenden "label" von oben aus
+      "preLaunchTask": "Start Docker Compose (Dev)"
+    }
+  ]
 }
