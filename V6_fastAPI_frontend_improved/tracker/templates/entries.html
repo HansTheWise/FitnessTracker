@@ -1,0 +1,33 @@
+<div class="row g-3">
+          <div class="col-md-5">
+                    <div class="card" style="height: 75vh; overflow-y: auto;">
+                              <div class="card-body" id="calendar-container">
+                                        <p>Kalender wird geladen...</p>
+                              </div>
+                    </div>
+          </div>
+
+          <div class="col-md-7">
+                    <div class="card">
+                              <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="btn-group" role="group">
+                                                  <button type="button" id="flyout-btn-konsum"
+                                                            class="btn btn-primary active"
+                                                            data-view="consumption">Konsum</button>
+                                                  <button type="button" id="flyout-btn-aktivitaeten"
+                                                            class="btn btn-secondary"
+                                                            data-view="activity">Aktivitäten</button>
+                                        </div>
+                                        <span id="flyout-selected-date" class="fs-5">---</span>
+                                        <button id="flyout-add-btn" class="btn btn-success btn-lg rounded-circle">
+                                                  <i class="bi bi-plus-lg"></i>
+                                        </button>
+                              </div>
+                              <div class="card-body" style="height: calc(75vh - 60px); overflow-y: auto;">
+                                        <div id="flyout-content-container">
+                                                  <p>Bitte einen Tag im Kalender auswählen.</p>
+                                        </div>
+                              </div>
+                    </div>
+          </div>
+</div>
