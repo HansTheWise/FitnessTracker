@@ -5,11 +5,11 @@ class Settings(BaseSettings):
     Verwaltet die Anwendungseinstellungen mit Pydantic.
     Liest Umgebungsvariablen automatisch aus einer .env-Datei.
     """
-    SQLALCHEMY_DATABASE_URI: str = "sqlite+aiosqlite:///./database.db"
+    SQLALCHEMY_DATABASE_URI: str = "das könnte eine sqlite:///./test.db oder eine PostgreSQL URI sein oder beides >:O"
 
     # --- JWT Authentifizierungs-Einstellungen ---
     # Der geheime Schlüssel zum Signieren von JWTs. Sollte lang und zufällig sein.
-    JWT_SECRET_KEY: str = "please_change_me_in_production"
+    JWT_SECRET_KEY: str = "please_change_me_in_production_PLEASE!!!!"
     
     # Der Algorithmus, der für die JWT-Signatur verwendet wird (z.B. "HS256").
     JWT_ALGORITHM: str = "HS256"
