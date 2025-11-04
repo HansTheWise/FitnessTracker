@@ -11,7 +11,7 @@ services:
       - .env
     # This command overrides the Dockerfile's CMD to run Uvicorn in reload mode,
     # which is essential for development.
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
       db:
         condition: service_healthy

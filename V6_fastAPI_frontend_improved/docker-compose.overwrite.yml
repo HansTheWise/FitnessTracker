@@ -3,7 +3,7 @@
 services:
   app:
     # This command enables Uvicorn's hot-reloading for development
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     volumes:
       # This volume enables live-syncing of your code for hot-reloading
       - .:/app
